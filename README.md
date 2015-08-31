@@ -1,6 +1,6 @@
 
 **Ansible-Universe** is an Ansible Role build tool.
-It wraps `ansible-galaxy` in order to add the missing features:
+It wraps `ansible-galaxy` to add the missing bits:
   * platform check generation
   * role syntax check & linter
   * proper README.md generation
