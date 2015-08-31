@@ -3,8 +3,22 @@
 It wraps `ansible-galaxy` to add the missing bits:
   * platform check generation
   * role syntax check & linter
-  * proper README.md generation
+  * proper `README.md` generation
   * packaging & publishing into private http repositories
+
+
+Build Manifest
+--------------
+
+**Ansible-universe** uses the ansible-galaxy manifest, `meta/main.yml`, with the following additional attributes:
+  * `version`, defaults to 0.0.1
+  * `variables`, maps names to descriptions
+  * `inconditions`, maps tasks filename to include conditions
+
+**Ansible-universe** generates two files:
+  * `tasks/main.yml`, performing the platform check and including any other .yml file in tasks/
+    Conditions to inclusions can be specified via the `inconditions` attribute of the manifest.
+  * `README.md`
 
 
 Example

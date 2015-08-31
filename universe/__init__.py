@@ -194,11 +194,10 @@ class Role(object):
 
 			## Maintenance
 
-			Install [ansible-utils](https://github.com/fclaerho/ansible-utils)
-			and run `ansible-role dist` to re-generate this distribution.
+			Install [ansible-universe](https://github.com/fclaerho/ansible-universe)
+			and run `ansible-universe dist check` to re-generate this distribution.
 
 			The following files are generated or updated based on the role manifest `meta/main.yml`:
-			  * defaults/main.yml
 			  * tasks/main.yml
 			  * README.md
 		"""
