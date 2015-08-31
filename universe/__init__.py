@@ -330,13 +330,16 @@ def main(args = None):
 			utils.chdir(opts["--directory"])
 		role = Role((opts["--exclude"] or "").split(","))
 		for target in opts["TARGET"]:
-			{
-				"init": role.init,
-				"dist": role.dist,
-				"check": role.check,
-				"package": role.package,
-				"publish": lambda: role.publish(opts["--repository"]),
-				"distclean": role.distclean,
-			}[target]()
+			try:
+				{
+					"init": role.init,
+					"dist": role.dist,
+					"check": role.check,
+					"package": role.package,
+					"publish": lambda: role.publish(opts["--repository"]),
+					"distclean": role.distclean,
+				}[target]()
+			except KeyError:
+				raise Error(target, "no such target")
 	except (utils.Error, Error) as exc:
 		raise SystemExit(utils.red(exc))
