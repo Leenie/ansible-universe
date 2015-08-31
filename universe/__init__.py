@@ -48,6 +48,10 @@ TASKSDIR = "tasks"
 MAINTASK_PATH = os.path.join(TASKSDIR, "main.yml")
 DISTDIR = "dist"
 
+MANIFESTS = tuple(dict({"name": name}, **__import__(name, globals()).MANIFEST) for name in (
+	"copy_has_owner",
+	"play_has_name"))
+
 class Error(utils.Error): pass
 
 def unmarshall(path, default = None):
@@ -285,7 +289,7 @@ class Role(object):
 					utils.trace("linting '%s'" % path)
 					tasks = unmarshall(path, default = []) or []
 					for idx, play in enumerate(tasks):
-						for manifest in utils.get_manifests(__path__):
+						for manifest in MANIFESTS:
 							if not manifest["predicate"](play):
 								name = play.get("name", "play#%i" % (idx + 1))
 								sys.stderr.write(utils.yellow("warning! %s[%s]: %s\n") % (path, name, manifest["message"]))

@@ -6,11 +6,13 @@ It wraps `ansible-galaxy` to add the missing bits:
   * proper README.md generation
   * packaging & publishing into private http repositories
 
+
 Example
 -------
 
 	$ mkdir foo
 	$ ansible-universe -C foo init dist check
+
 
 Installation
 ------------
@@ -26,3 +28,18 @@ The package will be installed in your [user site-packages](https://www.python.or
 To uninstall:
 
 	$ pip uninstall ansible-universe
+
+
+Linter Development
+------------------
+
+The builtin linter can easily be extended with your own checks:
+  * in the universe directory, create a new module defining the `MANIFEST` dict
+  * in `__init__.py`, register that new module in the `MANIFESTS` dict
+
+The `MANIFEST` global has two attributes:
+  * ̀`message`, the message to display when the check fails
+  * `predicate`, the callback to use to do the actual check;
+     it should take a single argument `play` corresponding to the play being linted.
+
+Don't hesitate to request the merging of your new checks.
