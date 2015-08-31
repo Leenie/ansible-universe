@@ -20,6 +20,8 @@ setuptools.setup(
 	install_requires = [
 		"pyutils >=5,<7a0",
 		"docopt",
+		"PyYAML",
+		"jinja2",
 	], # https://packaging.python.org/en/latest/requirements.html#install-requires-vs-requirements-files
 	#package_data = {}, # https://docs.python.org/2/distutils/setupscript.html#installing-package-data
 	#data_files = {}, # https://docs.python.org/2/distutils/setupscript.html#installing-additional-files
@@ -32,6 +34,8 @@ setuptools.setup(
 	tests_require = [
 		"pyutils >=5,<7a0",
 		"docopt",
+		"PyYAML",
+		"jinja2",
 	],
 	#extra_require = {},
 	#setup_requires = [],
