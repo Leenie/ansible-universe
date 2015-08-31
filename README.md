@@ -18,7 +18,7 @@ Build Manifest
 **Ansible-universe** generates two files:
   * `tasks/main.yml`, performing the platform check and including any other .yml file in tasks/
     Conditions to inclusions can be specified via the `inconditions` attribute of the manifest.
-  * `README.md`
+  * `README.md`, gathering the role description, supported platforms and data on variables.
 
 
 Example
