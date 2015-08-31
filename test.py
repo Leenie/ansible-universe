@@ -2,7 +2,7 @@
 
 import unittest, os
 
-import utils, ansible.universe # 3rd-party
+import utils, universe # 3rd-party
 
 # files generated following 'init':
 INITPATHS = ("meta/main.yml", "handlers/main.yml", "defaults/main.yml")
@@ -13,7 +13,7 @@ DISTPATHS = ("README.md", "tasks/main.yml")
 class Test(unittest.TestCase):
 
 	def _main(self, *args):
-		ansible.universe.main(("-v", "-C", self.tmpdir) + args)
+		universe.main(("-v", "-C", self.tmpdir) + args)
 
 	def setUp(self):
 		self.tmpdir = utils.mkdir()

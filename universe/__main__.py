@@ -1,5 +1,5 @@
 # copyright (c) 2015 fclaerhout.fr, released under the MIT license.
 
-import ansible.universe
+import universe
 
-ansible.universe.main()
+universe.main()

@@ -6,8 +6,7 @@ setuptools.setup(
 	name = "ansible-universe", # https://www.python.org/dev/peps/pep-0426/#name
 	version = "1.0.0", # https://www.python.org/dev/peps/pep-0440/
 	packages = [
-		"ansible",
-		"ansible.universe",
+		"universe",
 	], # https://pythonhosted.org/setuptools/setuptools.html#using-find-packages
 	#description = "",
 	#long_description = "",
@@ -26,7 +25,7 @@ setuptools.setup(
 	#data_files = {}, # https://docs.python.org/2/distutils/setupscript.html#installing-additional-files
 	entry_points = {
 		"console_scripts": [
-			"ansible-universe=ansible.universe:main",
+			"ansible-universe=universe:main",
 		],
 	}, # https://pythonhosted.org/setuptools/setuptools.html#automatic-script-creation
 	test_suite = "test",
