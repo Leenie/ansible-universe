@@ -35,6 +35,8 @@ setuptools.setup(
 	],
 	#extra_require = {},
 	#setup_requires = [],
-	#dependency_links = [], # https://pythonhosted.org/setuptools/setuptools.html#dependencies-that-aren-t-in-pypi
+	dependency_links = [
+		"https://pypi.fclaerhout.fr/simple/pyutils",
+	], # https://pythonhosted.org/setuptools/setuptools.html#dependencies-that-aren-t-in-pypi
 	#scripts = [], # https://docs.python.org/2/distutils/setupscript.html#installing-scripts
 )
