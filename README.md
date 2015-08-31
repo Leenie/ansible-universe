@@ -38,7 +38,7 @@ The builtin linter can easily be extended with your own checks:
   * in `__init__.py`, register that new module in the `MANIFESTS` dict
 
 The `MANIFEST` global has two attributes:
-  * ̀`message`, the message to display when the check fails
+  * `message`, the message to display when the check fails
   * `predicate`, the callback to use to do the actual check;
      it should take a single argument `play` corresponding to the play being linted.
 
