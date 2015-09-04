@@ -1,10 +1,17 @@
 
-**Ansible-Universe** is an Ansible Role build tool.
-It wraps `ansible-galaxy` to add the missing bits:
+**Ansible-universe** is an Ansible Role build tool supporting the following features:
   * platform check generation
   * role syntax check & linter
   * proper `README.md` generation
-  * packaging & publishing into private http repositories
+  * packaging & publishing into private web repositories
+
+**Ansible-universe** can handle the following targets:
+  * `init` instantiate role template
+  * `dist` generate ansible distributable role files
+  * `check` include role in a dummy playbook and check syntax
+  * `package` package role
+  * `publish -r…` publish role to a web repository
+  * `distclean` delete generated files
 
 
 Build Manifest

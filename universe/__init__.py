@@ -22,7 +22,7 @@ Where TARGET is in:
   * dist        generate ansible distributable role files
   * check       include role in a dummy playbook and check syntax
   * package     package role
-  * publish -r  publish role to a HTTP repository
+  * publish -r  publish role to a web repository
   * distclean   delete generated files
 
 Example:
@@ -30,11 +30,10 @@ Example:
   $ ansible-universe -C foo init dist check
 
 Build manifest:
-  Universe uses the galaxy manifest, meta/main.yml
-  with the following additional attributes:
-  * version
-  * variables, maps names to descriptions
-  * inconditions, maps tasks filename to include conditions
+  Regular galaxy manifest (meta/main.yml) plus the following attributes:
+    * version
+    * variables, maps names to descriptions
+    * inconditions, maps tasks filename to include conditions
 """
 
 import textwrap, glob, time, sys, os
