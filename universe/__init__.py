@@ -83,11 +83,7 @@ class Role(object):
 
 	def __init__(self, excluded_paths = None):
 		self.excluded_paths = excluded_paths or () # user files not to be overwritten
-
-	@property
-	def name(self):
-		"return role name"
-		return os.path.basename(os.getcwd())
+		self.name = os.path.basename(os.getcwd())
 
 	def _get_manifest(self):
 		"return role manifest as a dict"
@@ -154,12 +150,13 @@ class Role(object):
 
 	def init(self):
 		"use ansible-galaxy to populate current directory"
-		utils.check_call("ansible-galaxy", "init", self.name, "--force")
+		tmpdir = "_temp"
+		utils.check_call("ansible-galaxy", "init", tmpdir, "--force")
 		for path in (README_PATH, MAINTASK_PATH):
-			utils.remove(os.path.join(self.name, path))
-		for basename in os.listdir(self.name):
-			os.rename(os.path.join(self.name, basename), basename)
-		utils.remove(self.name)
+			utils.remove(os.path.join(tmpdir, path))
+		for basename in os.listdir(tmpdir):
+			os.rename(os.path.join(tmpdir, basename), basename)
+		utils.remove(tmpdir)
 		self.version = "0.0.1"
 
 	def _generate_readme(self):
@@ -252,34 +249,41 @@ class Role(object):
 	def check_syntax(self):
 		"generate a playbook using the role and syntax-check it"
 		tmpdir = utils.mkdir()
-		playbook = [{
-			"hosts": "127.0.0.1",
-			"connection": "local",
-			"roles": [self.name],
-		}]
-		marshall(
-			obj = playbook,
-			path = os.path.join(tmpdir, "playbook.yml"))
-		inventory = "localhost ansible_connection=local"
-		marshall(
-			obj = inventory,
-			path = os.path.join(tmpdir, "inventory.cfg"),
-			extname = ".txt")
 		cwd = os.getcwd()
-		config = {
-			"defaults": {
-				"roles_path": os.path.dirname(cwd),
-				"hostfile": "inventory.cfg",
-			}
-		}
-		marshall(
-			obj = config,
-			path = os.path.join(tmpdir, "ansible.cfg"))
+		utils.trace("cwd=", cwd)
 		utils.chdir(tmpdir)
-		utils.check_call("ansible-playbook", "playbook.yml", "--syntax-check")
-		utils.chdir(cwd)
-		utils.remove(tmpdir)
-		utils.trace("check passed")
+		try:
+			# write playbook:
+			playbook = [{
+				"hosts": "127.0.0.1",
+				"connection": "local",
+				"roles": [self.name],
+			}]
+			marshall(
+				obj = playbook,
+				path = os.path.join(tmpdir, "playbook.yml"))
+			# write inventory:
+			inventory = "localhost ansible_connection=local"
+			marshall(
+				obj = inventory,
+				path = os.path.join(tmpdir, "inventory.cfg"),
+				extname = ".txt")
+			# write configuration:
+			config = {
+				"defaults": {
+					"roles_path": os.path.dirname(cwd),
+					"hostfile": "inventory.cfg",
+				}
+			}
+			marshall(
+				obj = config,
+				path = os.path.join(tmpdir, "ansible.cfg"))
+			# perform the check:
+			utils.check_call("ansible-playbook", "playbook.yml", "--syntax-check")
+			utils.trace("check passed")
+		finally:
+			utils.chdir(cwd)
+			utils.remove(tmpdir)
 
 	def lint(self):
 		for dirname, _, basenames in os.walk(TASKSDIR):
