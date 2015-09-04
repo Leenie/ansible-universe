@@ -1,11 +1,11 @@
 
-**Ansible-universe** is an Ansible Role build tool supporting the following features:
+**Ansible-universe** is an [Ansible role](http://docs.ansible.com/ansible/playbooks_roles.html) build tool supporting the following features:
   * platform check generation
   * role syntax check & linter
   * proper `README.md` generation
   * packaging & publishing into private web repositories
 
-**Ansible-universe** can handle the following targets:
+**Ansible-universe** understands the following targets:
   * `init` instantiate role template
   * `dist` generate ansible distributable role files
   * `check` include role in a dummy playbook and check syntax
@@ -22,7 +22,7 @@ Build Manifest
   * `variables`, maps names to descriptions
   * `inconditions`, maps tasks filename to include conditions
 
-**Ansible-universe** generates two files:
+On build, two files are generated:
   * `tasks/main.yml`, performing the platform check and including any other .yml file in tasks/
     Conditions to inclusions can be specified via the `inconditions` attribute of the manifest.
   * `README.md`, gathering the role description, supported platforms and data on variables.
