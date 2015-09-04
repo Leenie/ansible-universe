@@ -250,7 +250,6 @@ class Role(object):
 		"generate a playbook using the role and syntax-check it"
 		tmpdir = utils.mkdir()
 		cwd = os.getcwd()
-		utils.trace("cwd=", cwd)
 		utils.chdir(tmpdir)
 		try:
 			# write playbook:
