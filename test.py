@@ -1,4 +1,4 @@
-# copyright (c) 2015 fclaerhout.fr, all rights reserved
+# copyright (c) 2015 fclaerhout.fr, released under the MIT license.
 
 import unittest, os
 
