@@ -214,15 +214,18 @@ class Role(object):
 	def _generate_maintask(self):
 		platforms = self.platforms
 		mainplays = []
+		author = self.author or "the role maintainer"
 		if platforms:
 			mainplays.append({
 				"name": "assert the target platform is supported",
 				"fail": {
-					"msg": "unsupported platform -- please contact the role maintainer for support",
+					"msg": "unsupported platform -- please contact %s for support" % author,
 				},
 				"when": "ansible_distribution not in %s" % list(platform["name"] for platform in platforms),
 			})
-		for name in glob.glob(os.path.join(TASKSDIR, "*.yml")):
+		for path in glob.glob(os.path.join(TASKSDIR, "*.yml")):
+			name = path[len(TASKSDIR) + 1:]
+			utils.trace("including", name)
 			if name in self.inconditions:
 				mainplays.append({
 					"include": name,
