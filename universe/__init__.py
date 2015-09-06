@@ -43,6 +43,7 @@ import docopt, jinja2, utils, yaml # 3rd-party
 DEFAULTS_PATH = os.path.join("defaults", "main.yml")
 README_PATH = "README.md"
 META_PATH = os.path.join("meta", "main.yml")
+VARS_PATH = os.path.join("vars", "main.yml")
 TASKSDIR = "tasks"
 MAINTASK_PATH = os.path.join(TASKSDIR, "main.yml")
 DISTDIR = "dist"
@@ -119,13 +120,18 @@ class Role(object):
 
 	@property
 	def variables(self):
-		"return dict mapping variable names to {'default':..., 'description':...}"
+		"return dict mapping variable names to {'constant', default', 'description'}"
 		_dict = {}
 		for key, value in (unmarshall(DEFAULTS_PATH) or {}).items():
 			if not key in _dict:
 				_dict[key] = {"default": value}
 			else:
 				_dict[key]["default"] = value
+		for key, value in (unmarshall(VARS_PATH) or {}).items():
+			if not key in _dict:
+				_dict[key] = {"constant": value}
+			else:
+				_dict[key]["constant"] = value
 		for key, value in self.manifest.get("variables", {}).items():
 			if not key in _dict:
 				_dict[key] = {"description": value}
@@ -163,30 +169,27 @@ class Role(object):
 		template = """
 			<!-- THIS IS A GENERATED FILE, DO NOT EDIT -->
 
-			# {{ name }}
+			**{{ name }}** — {{ description or "No description (yet.)" }}
 
-			{{ description or "No description (yet.)" }}
-
-			* * *
 
 			## Supported Platforms
 
-			{% for ptf in platforms %}
-			  * {{ ptf.name }}
+			{% for ptf in platforms %}  * {{ ptf.name }}
 			{% else %}
 			No supported platform specified (yet.)
 			{% endfor %}
 
 			## Variables
 
-			| Name | Default | Description |
-			|------|---------|-------------|
-			{% for var in variables %}| {{ var.name }} | {{ var.default }} | {{ var.description }} |
+			| Name | Constant | Default | Description |
+			|------|----------|---------|-------------|
+			{% for k, v in variables.items() %}| {{ k }} | {{ v.constant }} | {{ v.default }} | {{ v.description }} |
 			{% endfor %}
 
 			## Usage
 
-			Read Ansible documentation at https://docs.ansible.com/playbooks_roles.html#roles.
+			Read the Ansible documentation at https://docs.ansible.com/playbooks_roles.html.
+
 
 			## Maintenance
 
@@ -196,7 +199,8 @@ class Role(object):
 			The following files are generated or updated based on the role manifest `meta/main.yml`:
 			  * tasks/main.yml
 			  * README.md
-		"""
+
+		""".decode("utf-8")
 		text = jinja2.Template(textwrap.dedent(template)).render(**{
 			"description": self.description,
 			"platforms": self.platforms,
@@ -204,7 +208,7 @@ class Role(object):
 			"name": self.name,
 		})
 		marshall(
-			obj = text,
+			obj = text.encode("utf-8"),
 			path = README_PATH,
 			extname = ".txt")
 
