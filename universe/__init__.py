@@ -5,7 +5,7 @@
 Ansible role build tool.
 
 Usage:
-  ansible-universe [options] TARGET...
+  ansible-universe [options] TARGETS...
   ansible-universe --help
 
 Options:
@@ -17,7 +17,7 @@ Options:
   --no-color                 disable colored output
   -a, --all                  with clean, remove distdir
 
-Where TARGET is in:
+Where a TARGET is one of:
   * init        instantiate role template
   * dist        generate ansible distributable role files
   * check       include role in a dummy playbook and check syntax
@@ -338,17 +338,18 @@ def main(args = None):
 		if opts["--directory"]:
 			utils.chdir(opts["--directory"])
 		role = Role((opts["--exclude"] or "").split(","))
-		for target in opts["TARGET"]:
-			try:
-				{
-					"init": role.init,
-					"dist": role.dist,
-					"check": role.check,
-					"package": role.package,
-					"publish": lambda: role.publish(opts["--repository"]),
-					"distclean": role.distclean,
-				}[target]()
-			except KeyError:
+		for target in opts["TARGETS"]:
+			switch = {
+				"init": role.init,
+				"dist": role.dist,
+				"check": role.check,
+				"package": role.package,
+				"publish": lambda: role.publish(opts["--repository"]),
+				"distclean": role.distclean,
+			}
+			if target in switch:
+				switch[target]()
+			else:
 				raise Error(target, "no such target")
 	except (utils.Error, Error) as exc:
 		raise SystemExit(utils.red(exc))
