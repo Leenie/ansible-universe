@@ -338,15 +338,15 @@ def main(args = None):
 		if opts["--directory"]:
 			utils.chdir(opts["--directory"])
 		role = Role((opts["--exclude"] or "").split(","))
+		switch = {
+			"init": role.init,
+			"dist": role.dist,
+			"check": role.check,
+			"package": role.package,
+			"publish": lambda: role.publish(opts["--repository"]),
+			"distclean": role.distclean,
+		}
 		for target in opts["TARGETS"]:
-			switch = {
-				"init": role.init,
-				"dist": role.dist,
-				"check": role.check,
-				"package": role.package,
-				"publish": lambda: role.publish(opts["--repository"]),
-				"distclean": role.distclean,
-			}
 			if target in switch:
 				switch[target]()
 			else:
