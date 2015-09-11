@@ -1,5 +1,5 @@
 # copyright (c) 2015 fclaerhout.fr, released under the MIT license.
 
-import universe
+from . import main
 
-universe.main()
+main()
