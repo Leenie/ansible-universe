@@ -4,21 +4,21 @@ import setuptools
 
 setuptools.setup(
 	name = "ansible-universe", # https://www.python.org/dev/peps/pep-0426/#name
-	version = "1.5.0", # https://www.python.org/dev/peps/pep-0440/
+	version = "1.6.0", # https://www.python.org/dev/peps/pep-0440/
 	packages = [
 		"universe",
 	], # https://pythonhosted.org/setuptools/setuptools.html#using-find-packages
 	#description = "",
 	#long_description = "",
 	#url = "", # https://docs.python.org/2/distutils/setupscript.html#additional-meta-data
-	#author = "",
+	author = "florent claerhout",
 	author_email = "code@fclaerhout.fr",
 	license = "MIT",
 	#classifiers = [], # https://pypi.python.org/pypi?%3Aaction=list_classifiers
 	#keyword = [],
 	#py_modules = [],
 	install_requires = [
-		"pyutils >=5,<10a0",
+		"pyutils==10",
 		"docopt",
 		"PyYAML",
 		"jinja2",
@@ -32,7 +32,7 @@ setuptools.setup(
 	}, # https://pythonhosted.org/setuptools/setuptools.html#automatic-script-creation
 	test_suite = "test",
 	tests_require = [
-		"pyutils >=5,<10a0",
+		"pyutils==10",
 		"docopt",
 		"PyYAML",
 		"jinja2",
