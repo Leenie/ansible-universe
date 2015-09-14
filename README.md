@@ -38,9 +38,9 @@ Example
 Installation
 ------------
 
-	$ pip install --user --extra-index-url https://pypi.fclaerhout.fr/simple/ ansible-universe
+	$ pip install --user ansible-universe
 
-or, if that repository is not available:
+or, if the PyPI repository is not available:
 
 	$ pip install --user git+https://github.com/fclaerho/ansible-universe.git
 
