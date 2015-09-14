@@ -4,7 +4,7 @@ import setuptools
 
 setuptools.setup(
 	name = "ansible-universe", # https://www.python.org/dev/peps/pep-0426/#name
-	version = "1.6.0", # https://www.python.org/dev/peps/pep-0440/
+	version = "1.7.0", # https://www.python.org/dev/peps/pep-0440/
 	packages = [
 		"universe",
 	], # https://pythonhosted.org/setuptools/setuptools.html#using-find-packages
@@ -18,10 +18,10 @@ setuptools.setup(
 	#keyword = [],
 	#py_modules = [],
 	install_requires = [
-		"pyutils==10",
 		"docopt",
 		"PyYAML",
 		"jinja2",
+		"fckit==11.0.2",
 	], # https://packaging.python.org/en/latest/requirements.html#install-requires-vs-requirements-files
 	#package_data = {}, # https://docs.python.org/2/distutils/setupscript.html#installing-package-data
 	#data_files = {}, # https://docs.python.org/2/distutils/setupscript.html#installing-additional-files
@@ -32,15 +32,13 @@ setuptools.setup(
 	}, # https://pythonhosted.org/setuptools/setuptools.html#automatic-script-creation
 	test_suite = "test",
 	tests_require = [
-		"pyutils==10",
 		"docopt",
 		"PyYAML",
 		"jinja2",
+		"fckit==11.0.2",
 	],
 	#extra_require = {},
 	#setup_requires = [],
-	dependency_links = [
-		"https://pypi.fclaerhout.fr/simple/pyutils",
-	], # https://pythonhosted.org/setuptools/setuptools.html#dependencies-that-aren-t-in-pypi
+	#dependency_links = [], # https://pythonhosted.org/setuptools/setuptools.html#dependencies-that-aren-t-in-pypi
 	#scripts = [], # https://docs.python.org/2/distutils/setupscript.html#installing-scripts
 )

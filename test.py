@@ -2,7 +2,7 @@
 
 import unittest, os
 
-import utils, universe # 3rd-party
+import universe, fckit # 3rd-party
 
 # files generated following 'init':
 INITPATHS = ("meta/main.yml", "handlers/main.yml", "defaults/main.yml")
@@ -16,11 +16,11 @@ class Test(unittest.TestCase):
 		universe.main(("-v", "-C", self.tmpdir) + args)
 
 	def setUp(self):
-		self.tmpdir = utils.mkdir()
+		self.tmpdir = fckit.mkdir()
 		self._main("init")
 
 	def tearDown(self):
-		utils.remove(self.tmpdir)
+		fckit.remove(self.tmpdir)
 
 	def _assert_path_state(self, path, present = True):
 		path = os.path.join(self.tmpdir, path)
