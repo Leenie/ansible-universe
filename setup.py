@@ -4,13 +4,13 @@ import setuptools
 
 setuptools.setup(
 	name = "ansible-universe", # https://www.python.org/dev/peps/pep-0426/#name
-	version = "1.7.0", # https://www.python.org/dev/peps/pep-0440/
+	version = "1.8.0", # https://www.python.org/dev/peps/pep-0440/
 	packages = [
 		"universe",
 	], # https://pythonhosted.org/setuptools/setuptools.html#using-find-packages
 	#description = "",
 	#long_description = "",
-	#url = "", # https://docs.python.org/2/distutils/setupscript.html#additional-meta-data
+	url = "https://github.com/fclaerho/ansible-universe", # https://docs.python.org/2/distutils/setupscript.html#additional-meta-data
 	author = "florent claerhout",
 	author_email = "code@fclaerhout.fr",
 	license = "MIT",
@@ -21,7 +21,7 @@ setuptools.setup(
 		"docopt",
 		"PyYAML",
 		"jinja2",
-		"fckit==11.0.2",
+		"fckit",
 	], # https://packaging.python.org/en/latest/requirements.html#install-requires-vs-requirements-files
 	#package_data = {}, # https://docs.python.org/2/distutils/setupscript.html#installing-package-data
 	#data_files = {}, # https://docs.python.org/2/distutils/setupscript.html#installing-additional-files
@@ -35,7 +35,7 @@ setuptools.setup(
 		"docopt",
 		"PyYAML",
 		"jinja2",
-		"fckit==11.0.2",
+		"fckit",
 	],
 	#extra_require = {},
 	#setup_requires = [],
