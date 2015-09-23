@@ -55,6 +55,9 @@ To uninstall:
 Ansible Good Practices
 ----------------------
 
+Ansible Inc. has published a first set of [good practices][1] online, be sure to read them first.
+The practices discussed here are complementing those official ones.
+
 ### P1. Playbook Interface
 
 Always assume your playbook users are not developers:
@@ -104,7 +107,7 @@ Having shared variables between two roles is a design mistake.
 
 ### P9. Role Structure
 
-Do not add any custom sub-directory to a role, this would result into an undefined behavior[6].
+Do not add any custom sub-directory to a role, this would result into an [undefined behavior][6].
 As of version 1.9.2, 8 sub-directories are specified and used by the Ansible ecosystem:
   * defaults/
   * files/
@@ -120,8 +123,7 @@ and if they are already used by your role for anything else, this will break.
 
 ### P10. Role Packaging
 
-Fill-in your role metadata (meta/main.yml);
-Among other things, specify its
+Fill-in your role metadata (meta/main.yml); among other things:
   * name
   * version (extended ansible-universe attribute),
   * authors
@@ -139,3 +141,14 @@ The builtin linter can easily be extended with your own checks:
 The `MANIFEST` global has two attributes:
   * `message`, the message to display when the check fails
   * `predicate`, the callback — taking a `play`argument — used to do the actual check;
+
+
+References
+----------
+
+[1]: http://docs.ansible.com/ansible/playbooks_best_practices.html
+[2]: https://openedx.atlassian.net/wiki/display/OpenOPS/Ansible+Code+Conventions
+[3]: “Ansible: Up and Running”, L.Hochstein, ISBN: 978-1-4919-1532-5
+[4]: https://www.python.org/dev/peps/pep-0440/#version-specifiers
+[5]: https://en.wikipedia.org/wiki/Principle_of_least_astonishment
+[6]: https://en.wikipedia.org/wiki/Undefined_behavior
