@@ -52,8 +52,20 @@ To uninstall:
 	$ pip uninstall ansible-universe
 
 
-Ansible Good Practices
-----------------------
+Development Guide
+-----------------
+
+The builtin linter can easily be extended with your own checks:
+  * in the universe directory, create a new module defining the `MANIFEST` dict
+  * in `__init__.py`, register that new module in the `MANIFESTS` dict
+
+The `MANIFEST` global has two attributes:
+  * `message`, the message to display when the check fails
+  * `predicate`, the callback — taking a `play`argument — used to do the actual check;
+
+
+Appendix: Ansible Good Practices
+--------------------------------
 
 Ansible Inc. has published a first set of [good practices][1] online, be sure to read them first.
 The practices discussed here are complementing those official ones.
@@ -152,18 +164,6 @@ Fill-in your role metadata (meta/main.yml); among other things:
   * authors
   * description
   * and the supported platforms (enforced by ansible-universe.)
-
-
-Linter Development
-------------------
-
-The builtin linter can easily be extended with your own checks:
-  * in the universe directory, create a new module defining the `MANIFEST` dict
-  * in `__init__.py`, register that new module in the `MANIFESTS` dict
-
-The `MANIFEST` global has two attributes:
-  * `message`, the message to display when the check fails
-  * `predicate`, the callback — taking a `play`argument — used to do the actual check;
 
 <!-- REFERENCES -->
 [1]: http://docs.ansible.com/ansible/playbooks_best_practices.html
