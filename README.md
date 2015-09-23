@@ -107,13 +107,13 @@ Having shared variables between two roles is a design mistake.
 Do not add any custom sub-directory to a role, this would result into an undefined behavior[6].
 As of version 1.9.2, 8 sub-directories are specified and used by the Ansible ecosystem:
   * defaults/
-	* files/
-	* handlers/
-	* meta/
-	* tasks/
-	* templates/
-	* vars/
-	* library/
+  * files/
+  * handlers/
+  * meta/
+  * tasks/
+  * templates/
+  * vars/
+  * library/
 At any point in a future version, other sub-directories might be added
 and if they are already used by your role for anything else, this will break.
 
@@ -122,10 +122,10 @@ and if they are already used by your role for anything else, this will break.
 Fill-in your role metadata (meta/main.yml);
 Among other things, specify its
   * name
-	* version (extended ansible-universe attribute),
-	* authors
-	* description
-	* and the supported platforms (enforced by ansible-universe.)
+  * version (extended ansible-universe attribute),
+  * authors
+  * description
+  * and the supported platforms (enforced by ansible-universe.)
 
 
 Linter Development
