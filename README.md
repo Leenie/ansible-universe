@@ -64,10 +64,10 @@ The `MANIFEST` global has two attributes:
   * `predicate`, the callback — taking a `play`argument — used to do the actual check;
 
 
-Appendix: Ansible Good Practices
+Appendix: Ansible Best Practices
 --------------------------------
 
-Ansible Inc. has published a first set of [good practices][1] online, be sure to read them first.
+Ansible Inc. has published a first set of [best practices][1] online, be sure to read them first.
 The practices discussed here are complementing those official ones.
 
 ### P1. Playbook Interface
