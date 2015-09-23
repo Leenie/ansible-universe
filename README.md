@@ -77,12 +77,16 @@ design your playbooks to be configurable, through groups and variables set in th
 The inventory and varfiles are expected to be created/edited,
 but having to modify a playbook to make it work is a mistake.
 
+Linter: ❌
+
 ### P2. Role Interface
 
 If you need a piece of provisioning more than once, re-design it as a role.
 Roles are to Ansible what packages are to your platform or programming language.
 You can safely assume that role users are actually developers,
 as using them requires some more advanced Ansible skills — but, again, plan for configurability through variables.
+
+Linter: ❌
 
 ### P3. Documentation
 
