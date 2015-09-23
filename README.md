@@ -114,6 +114,7 @@ As of version 1.9.2, 8 sub-directories are specified and used by the Ansible eco
   * templates/
   * vars/
   * library/
+
 At any point in a future version, other sub-directories might be added
 and if they are already used by your role for anything else, this will break.
 
