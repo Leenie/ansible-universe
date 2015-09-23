@@ -95,14 +95,14 @@ A requirement file can reference a VCS or a web repository indifferently.
 
 ### P7. Naming
 
-Prefix all your playbook groups and variables by a short and unique ID (ideally the playbook name)
-and prefix all your role variables by the role name as well[2,3].
+[Prefix][2] all your playbook groups and variables by a short and unique ID (ideally the playbook name)
+and [prefix][3] all your role variables by the role name as well.
 Ansible only has a global namespace and having two identical variables will lead one to be overwritten by the other.
 This is also true for handler names.
 
 ### P8. Isolation
 
-Keep roles self-contained[2].
+Keep roles [self-contained][2].
 Having shared variables between two roles is a design mistake.
 
 ### P9. Role Structure
@@ -148,7 +148,7 @@ References
 
 [1]: http://docs.ansible.com/ansible/playbooks_best_practices.html
 [2]: https://openedx.atlassian.net/wiki/display/OpenOPS/Ansible+Code+Conventions
-[3]: “Ansible: Up and Running”, L.Hochstein, ISBN: 978-1-4919-1532-5
+[3]: http://shop.oreilly.com/product/0636920035626.do
 [4]: https://www.python.org/dev/peps/pep-0440/#version-specifiers
 [5]: https://en.wikipedia.org/wiki/Principle_of_least_astonishment
 [6]: https://en.wikipedia.org/wiki/Undefined_behavior
