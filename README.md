@@ -142,10 +142,7 @@ The `MANIFEST` global has two attributes:
   * `message`, the message to display when the check fails
   * `predicate`, the callback — taking a `play`argument — used to do the actual check;
 
-
-References
-----------
-
+<!-- REFERENCES -->
 [1]: http://docs.ansible.com/ansible/playbooks_best_practices.html
 [2]: https://openedx.atlassian.net/wiki/display/OpenOPS/Ansible+Code+Conventions
 [3]: http://shop.oreilly.com/product/0636920035626.do
