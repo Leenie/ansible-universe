@@ -82,6 +82,29 @@ The documentation (generally the README.md file) is therefore the only learning 
 
 Make your roles available either on a public VCS or on a public web repository.
 Prefer web repository to avoid access control issues.
+Indeed, contrary to other modern build stacks (e.g. Java, Python, Docker...),
+Ansible does not offer any kind of package repository;
+instead roles are simply “published” as code repositories (e.g. on github, etc.)
+This entails major issues:
+  * __Unexpected Access Restrictions__
+    Code repositories are designed to enforce fine grained access control from the ground up;
+    this means you have to explicitly be given access to a repository to use it.
+    Package repositories have the opposite behavior: once published,
+    a package is accessible to anyone (e.g. apt-get install, pip install...)
+    except if configured otherwise (opt-in.) The intent is clear: on publication,
+    the package is made available to everyone. Therefore, using a code repository as a package
+    repository violates the UX [principle of least surprise][5].
+  * __No Version Ordering & Expressions__
+    A VCS uses an internal versioning system (e.g. a hash for git)
+    which is not related to the “human readable” version strings (e.g. “v1.0.0”.)
+    Version strings are generally tag names created manually by developers when necessary.
+    As version strings are unusable by git and by extension, by ansible-galaxy,
+    complex version expressions cannot be used when specifying a dependency.
+    With other build tools, it is common for instance to request an compatible version of a dependency
+    within a range and include a subset of releases known as broken, e.g. (>=2.1, <4a0, !=2.4rc, != 2.5rc)
+  * __Inefficient Binary Resources Storage__
+    A playbook may contain binary resources (e.g. images or pre-compiled bytecode.)
+    Storing those resources into a code repository is a bad practice (ref?.)
 
 ### P5. Validation
 
