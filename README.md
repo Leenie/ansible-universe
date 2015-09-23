@@ -1,8 +1,9 @@
 
 **Ansible-universe** is an [Ansible role](http://docs.ansible.com/ansible/playbooks_roles.html) build tool implementing the following features:
-  * platform check generation
-  * role syntax check & linter
+  * role syntax check
   * proper `README.md` generation
+  * platform runtime check generation
+  * role linter implementing best practices
   * packaging & publishing into private web repositories
 
 It supports the following build targets:
