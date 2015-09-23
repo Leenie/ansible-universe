@@ -95,8 +95,8 @@ A requirement file can reference a VCS or a web repository indifferently.
 
 ### P7. Naming
 
-[Prefix][2] all your playbook groups and variables by a short and unique ID (ideally the playbook name)
-and [prefix][3] all your role variables by the role name as well.
+[Prefix][2]([bis][3]) all your playbook groups and variables by a short and unique ID (ideally the playbook name)
+and [Prefix][2]([bis][3]) all your role variables by the role name as well.
 Ansible only has a global namespace and having two identical variables will lead one to be overwritten by the other.
 This is also true for handler names.
 
