@@ -122,7 +122,7 @@ This entails major issues:
     within a range and include a subset of releases known as broken, e.g. `>=2.1, <4a0, !=2.4rc, != 2.5rc`
   * __Inefficient Binary Resources Storage__
     A playbook may contain binary resources (e.g. images or pre-compiled bytecode.)
-    Storing those resources into a code repository is a bad practice (ref?.)
+    Storing those resources into a code repository is a bad practice (REF?.)
 
 ### Validation
 
