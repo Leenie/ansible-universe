@@ -12,7 +12,6 @@ Options:
   -C PATH, --directory PATH  set working directory
   -r URL, --repository URL   set HTTP repository
   -x PATHS, --exclude PATHS  comma-separated list of paths to ignore
-  -W FLAGS, --warning FLAGS  comma-separated list of flags
   -v, --verbose              output executed commands
   -h, --help                 display full help text
   --no-color                 disable colored output
@@ -31,12 +30,11 @@ Example:
   $ mkdir foo
   $ ansible-universe -C foo init dist check
 
-Build manifest:
-  Regular galaxy manifest (meta/main.yml) plus the following attributes:
-    * prefix
-    * version
-    * variables, maps names to descriptions
-    * inconditions, maps tasks filename to include conditions
+Universe uses the Galaxy manifest (meta/main.yml) extended with:
+  * prefix        variable prefix, defaults to rolename
+  * version       role version
+  * variables     maps names to descriptions
+  * inconditions  maps tasks filename to include conditions
 """
 
 import textwrap, glob, time, sys, os
