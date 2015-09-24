@@ -6,7 +6,7 @@
   * role linter implementing best practices
   * packaging & publishing into private web repositories
 
-The following build targets are available:
+The following _build targets_ are available:
   * `init` instantiate role template
   * `dist` generate ansible distributable role files
   * `check` include role in a dummy playbook and check syntax
