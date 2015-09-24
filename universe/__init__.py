@@ -18,12 +18,13 @@ Options:
   -a, --all                  with clean, remove distdir
 
 Where a TARGET is one of:
-  * init        instantiate role template
-  * dist        generate ansible distributable role files
-  * check       include role in a dummy playbook and check syntax
-  * package     package role
-  * publish -r  publish role to a web repository
-  * distclean   delete generated files
+  * init         instantiate role template
+  * show         show role information
+  * dist         generate ansible distributable role files
+  * check        include role in a dummy playbook and check syntax
+  * package      package role
+  * publish -r…  publish role to a web repository
+  * distclean    delete generated files
 
 Example:
   $ mkdir foo
@@ -80,6 +81,9 @@ def marshall(obj, path, extname = None):
 		},
 		overwrite = True)
 
+def warning(*strings):
+	sys.stderr.write(fckit.yellow("warning! %s\n") % ": ".join(strings))
+
 class Role(object):
 
 	def __init__(self, excluded_paths = None):
@@ -101,10 +105,8 @@ class Role(object):
 		"return role version"
 		return self.manifest["version"]
 
-	def _set_version(self, _str):
-		_dict = self.manifest
-		_dict["version"] = _str
-		self.manifest = _dict
+	def _set_version(self, string):
+		self.manifest = dict(self.manifest, version = string)
 
 	version = property(_get_version, _set_version)
 
@@ -114,30 +116,44 @@ class Role(object):
 		return self.manifest["galaxy_info"]["author"]
 
 	@property
+	def prefix(self):
+		"return prefix for variables, defaults on role name"
+		return self.manifest.get("prefix", self.name)
+
+	@property
 	def platforms(self):
 		"return the list of supported platforms {'name':..., 'versions':...}"
 		return self.manifest["galaxy_info"].get("platforms", ())
 
 	@property
-	def variables(self):
-		"return dict mapping variable names to {'constant', default', 'description'}"
-		_dict = {}
-		for key, value in (unmarshall(DEFAULTS_PATH) or {}).items():
-			if not key in _dict:
-				_dict[key] = {"default": value}
-			else:
-				_dict[key]["default"] = value
-		for key, value in (unmarshall(VARS_PATH) or {}).items():
-			if not key in _dict:
-				_dict[key] = {"constant": value}
-			else:
-				_dict[key]["constant"] = value
-		for key, value in self.manifest.get("variables", {}).items():
-			if not key in _dict:
-				_dict[key] = {"description": value}
-			else:
-				_dict[key]["description"] = value
-		return _dict
+	def variables(self, _cache = {}):
+		"return dict mapping variable names to {'constant', 'default', 'description'}"
+		if not _cache:
+			for key, value in (unmarshall(DEFAULTS_PATH) or {}).items():
+				_cache[key] = {
+					"description": None,
+					"constant": False,
+					"value": value,
+				}
+			for key, value in (unmarshall(VARS_PATH) or {}).items():
+				if key in _cache:
+					raise Error(key, "variable both set in vars/ and defaults/")
+				else:
+					_cache[key] = {
+						"description": None,
+						"constant": True,
+						"value": value,
+					}
+			for key, value in self.manifest.get("variables", {}).items():
+				if key in _cache:
+					_cache[key]["description"] = value
+				else:
+					_cache[key] = {
+						"description": value,
+						"constant": False,
+						"value": None,
+					}
+		return _cache
 
 	@property
 	def description(self):
@@ -165,6 +181,19 @@ class Role(object):
 		fckit.remove(tmpdir)
 		self.version = "0.0.1"
 
+	def show(self):
+		print yaml.dump(
+			data = {
+				"name": self.name,
+				"author": self.author,
+				"version": self.version,
+				"platforms": self.platforms,
+				"variables": self.variables, 
+				"description": self.description
+			},
+			explicit_start = True,
+			default_flow_style = False)
+
 	def _generate_readme(self):
 		template = """
 			<!-- THIS IS A GENERATED FILE, DO NOT EDIT -->
@@ -181,9 +210,9 @@ class Role(object):
 
 			## Variables
 
-			| Name | Constant | Default | Description |
-			|------|----------|---------|-------------|
-			{% for k, v in variables.items() %}| {{ k }} | {{ v.constant }} | {{ v.default }} | {{ v.description }} |
+			| Name | Value | Constant? | Description |
+			|------|-------|-----------|-------------|
+			{% for k, v in variables.items() %}| {{ k }} | {{ v.value }} | {{ v.constant }} | {{ v.description }} |
 			{% endfor %}
 
 			## Usage
@@ -215,7 +244,7 @@ class Role(object):
 	def _generate_maintask(self):
 		platforms = self.platforms
 		mainplays = []
-		author = self.author or "the role maintainer"
+		author = self.author or "the role author"
 		if platforms:
 			mainplays.append({
 				"name": "assert the target platform is supported",
@@ -224,7 +253,7 @@ class Role(object):
 				},
 				"when": "ansible_distribution not in %s" % list(platform["name"] for platform in platforms),
 			})
-		for path in glob.glob(os.path.join(TASKSDIR, "*.yml")):
+		for path in filter(lambda path: path != MAINTASK_PATH, glob.glob(os.path.join(TASKSDIR, "*.yml"))):
 			name = path[len(TASKSDIR) + 1:]
 			fckit.trace("including", name)
 			if name in self.inconditions:
@@ -288,6 +317,11 @@ class Role(object):
 			fckit.chdir(cwd)
 			fckit.remove(tmpdir)
 
+	def check_naming(self):
+		for key in self.variables:
+			if not key.startswith(self.prefix):
+				warning(key, "variable name is not properly prefixed (%s)" % self.prefix)
+
 	def lint(self):
 		for dirname, _, basenames in os.walk(TASKSDIR):
 			for basename in basenames:
@@ -300,10 +334,11 @@ class Role(object):
 						for manifest in MANIFESTS:
 							if not manifest["predicate"](play):
 								name = play.get("name", "play#%i" % (idx + 1))
-								sys.stderr.write(fckit.yellow("warning! %s[%s]: %s\n") % (path, name, manifest["message"]))
+								warning("%s[%s]" % (path, name), manifest["message"])
 
 	def check(self):
 		self.check_syntax()
+		self.check_naming()
 		self.lint()
 
 	def _get_package_path(self):
@@ -340,6 +375,7 @@ def main(args = None):
 		role = Role((opts["--exclude"] or "").split(","))
 		switch = {
 			"init": role.init,
+			"show": role.show,
 			"dist": role.dist,
 			"check": role.check,
 			"package": role.package,
