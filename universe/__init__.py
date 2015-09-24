@@ -12,6 +12,7 @@ Options:
   -C PATH, --directory PATH  set working directory
   -r URL, --repository URL   set HTTP repository
   -x PATHS, --exclude PATHS  comma-separated list of paths to ignore
+  -W FLAGS, --warning FLAGS  comma-separated list of flags
   -v, --verbose              output executed commands
   -h, --help                 display full help text
   --no-color                 disable colored output
@@ -32,6 +33,7 @@ Example:
 
 Build manifest:
   Regular galaxy manifest (meta/main.yml) plus the following attributes:
+    * prefix
     * version
     * variables, maps names to descriptions
     * inconditions, maps tasks filename to include conditions
@@ -118,7 +120,7 @@ class Role(object):
 	@property
 	def prefix(self):
 		"return prefix for variables, defaults on role name"
-		return self.manifest.get("prefix", self.name)
+		return self.manifest.get("prefix", "%s_" % self.name.lower().replace("-", "_"))
 
 	@property
 	def platforms(self):
@@ -336,7 +338,7 @@ class Role(object):
 								name = play.get("name", "play#%i" % (idx + 1))
 								warning("%s[%s]" % (path, name), manifest["message"])
 
-	def check(self):
+	def check(self, syntax = True, naming = True, lint = True):
 		self.check_syntax()
 		self.check_naming()
 		self.lint()

@@ -19,6 +19,7 @@ Build Manifest
 --------------
 
 **Ansible-universe** uses the native ansible-galaxy manifest, `meta/main.yml`, with the following additional attributes:
+  * `prefix`, defaults to rolename
   * `version`, defaults to 0.0.1
   * `variables`, maps names to descriptions
   * `inconditions`, maps tasks filename to include conditions
