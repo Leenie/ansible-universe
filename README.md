@@ -119,7 +119,7 @@ This entails major issues:
     As version strings are unusable by git and by extension, by ansible-galaxy,
     complex version expressions cannot be used when specifying a dependency.
     With other build tools, it is common for instance to request an compatible version of a dependency
-    within a range and include a subset of releases known as broken, e.g. (>=2.1, <4a0, !=2.4rc, != 2.5rc)
+    within a range and include a subset of releases known as broken, e.g. `(>=2.1, <4a0, !=2.4rc, != 2.5rc)`
   * __Inefficient Binary Resources Storage__
     A playbook may contain binary resources (e.g. images or pre-compiled bytecode.)
     Storing those resources into a code repository is a bad practice (ref?.)
