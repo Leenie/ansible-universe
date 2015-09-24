@@ -92,6 +92,7 @@ Unfortunately, Ansible (as of version 1.9.2) has no native mechanism to probe ne
 The documentation (generally the README.md file) is therefore the only learning medium for the users.
 
 To list variables (and other role-related information), use:
+
 	$ cd myrole
 	$ ansible-universe show
 
