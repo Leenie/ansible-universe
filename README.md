@@ -89,9 +89,14 @@ as using them requires some more advanced Ansible skills — but, again, plan fo
 
 Given a playbook or a role, if groups or variables are not documented, they are non-existent.
 Unfortunately, Ansible (as of version 1.9.2) has no native mechanism to probe neither groups nor variables.
-The documentation (generally the README.md file) is therefore the only learning medium for the users.
+The documentation (generally the `README.md` file) is therefore the only learning medium for the end-users.
 
-To list variables (and other role-related information), use:
+Generate a complete `README.md` with:
+
+	$ cd myrole
+	$ ansible-universe dist
+
+List variables with:
 
 	$ cd myrole
 	$ ansible-universe show
