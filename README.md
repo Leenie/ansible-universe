@@ -24,7 +24,7 @@ Example:
 Build Manifest
 --------------
 
-**Ansible-universe** uses the native ansible-galaxy manifest, `meta/main.yml`, with the following additional attributes:
+**Ansible-universe** uses the ansible-galaxy manifest (`meta/main.yml`) with extra attributes:
   * `prefix`, defaults to rolename
   * `version`, defaults to 0.0.1
   * `variables`, maps names to descriptions

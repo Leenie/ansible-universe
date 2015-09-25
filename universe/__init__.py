@@ -30,7 +30,7 @@ Example:
   $ mkdir foo
   $ ansible-universe -C foo init dist check
 
-Universe uses the Galaxy manifest (meta/main.yml) with extra attributes:
+Universe uses the ansible-galaxy manifest (meta/main.yml) with extra attributes:
   * prefix        variable prefix, defaults to rolename
   * version       role version
   * variables     maps names to descriptions
