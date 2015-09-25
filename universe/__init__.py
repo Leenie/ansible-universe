@@ -17,7 +17,7 @@ Options:
   --no-color                 disable colored output
   -a, --all                  with clean, remove distdir
 
-Where a TARGET is one of:
+TARGET:
   * init         instantiate role template
   * show         show role information
   * dist         generate ansible distributable role files
@@ -30,7 +30,7 @@ Example:
   $ mkdir foo
   $ ansible-universe -C foo init dist check
 
-Universe uses the Galaxy manifest (meta/main.yml) extended with:
+Universe uses the Galaxy manifest (meta/main.yml) with extra attributes:
   * prefix        variable prefix, defaults to rolename
   * version       role version
   * variables     maps names to descriptions
@@ -86,8 +86,10 @@ def warning(*strings):
 
 class Role(object):
 
-	def __init__(self, excluded_paths = None):
+	def __init__(self, excluded_paths = None, directory = None):
 		self.excluded_paths = excluded_paths or () # user files not to be overwritten
+		if directory:
+			fckit.chdir(path)
 		self.name = os.path.basename(os.getcwd())
 
 	def _get_manifest(self):
@@ -322,6 +324,9 @@ class Role(object):
 			if not key.startswith(self.prefix):
 				warning(key, "variable name is not properly prefixed (%s)" % self.prefix)
 
+	def check_layout(self):
+		for path in os.listdir("."):
+
 	def lint(self):
 		for dirname, _, basenames in os.walk(TASKSDIR):
 			for basename in basenames:
@@ -370,9 +375,9 @@ def main(args = None):
 			fckit.disable_colors()
 		if opts["--verbose"]:
 			fckit.enable_tracing()
-		if opts["--directory"]:
-			fckit.chdir(opts["--directory"])
-		role = Role((opts["--exclude"] or "").split(","))
+		role = Role(
+			excluded_paths = (opts["--exclude"] or "").split(","),
+			directory = opts["--directory"])
 		switch = {
 			"init": role.init,
 			"show": role.show,

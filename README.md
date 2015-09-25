@@ -68,35 +68,34 @@ The `MANIFEST` global has two attributes:
 Appendix: Ansible Best Practices
 --------------------------------
 
-Ansible Inc. has published a first set of [best practices][1] online, be sure to read them first.
-The practices discussed here are complementing those official ones.
+### DESIGN GENERALITIES
 
-### Playbook Interface
+#### Playbook Interface
 
 Always assume your playbook users are not developers:
-design your playbooks to be configurable, through groups and variables set in the inventory and varfiles.
-The inventory and varfiles are expected to be created/edited,
-but having to modify a playbook to make it work is a mistake.
+design your playbooks to be configurable, through _groups_ and _variables_ set in the inventory and varfiles.
+The inventory and varfiles are expected to be created/edited, but making your user modify a playbook is a design mistake.
 
-### Role Interface
+#### Role Interface
 
-If you need a piece of provisioning more than once, re-design it as a role.
+If you need a piece of provisioning more than once, re-design it as a role [1].
 Roles are to Ansible what packages are to your platform or programming language.
 You can safely assume that role users are actually developers,
 as using them requires some more advanced Ansible skills — but, again, plan for configurability through variables.
 
-### Documentation
+#### Learnability
 
 Given a playbook or a role, if groups or variables are not documented, they are non-existent.
 Unfortunately, Ansible (as of version 1.9.2) has no native mechanism to probe neither groups nor variables.
 The documentation (generally the `README.md` file) is therefore the only learning medium for the end-users.
+Make sure it is up-to-date.
 
-Generate a complete `README.md` with:
+Generate a complete `README.md`:
 
 	$ cd myrole
 	$ ansible-universe dist
 
-List variables with:
+Show role information, including variables:
 
 	$ cd myrole
 	$ ansible-universe show
@@ -139,25 +138,28 @@ Validate your roles before publishing them.
 ### Dependencies
 
 Do not bundle any role with your playbook (or similarly, do not use git submodules):
-use a requirements file and let Ansible handle its resolution (same principle than in any other stack: python, ruby, etc.)
+use a requirements file and let Ansible handle its resolution.
+The same principle applies to any build stack: python, java, ruby, etc.
+For instance you do not bundle jar dependencies for a Java project.
 A requirement file can reference a VCS or a web repository indifferently.
-
-### Naming
-
-[Prefix][2]([bis][3]) all your playbook groups and variables by a short and unique ID (ideally the playbook name)
-and [Prefix][2]([bis][3]) all your role variables by the role name as well.
-Ansible only has a global namespace and having two identical variables will lead one to be overwritten by the other.
-This is also true for handler names.
 
 ### Isolation
 
 Keep roles [self-contained][2].
 Having shared variables between two roles is a design mistake.
 
-### Role Structure
+### Naming, `-Wnaming`
 
-Do not add any custom sub-directory to a role, this would result into an [undefined behavior][6].
-As of version 1.9.2, 8 sub-directories are specified and used by the Ansible ecosystem:
+Prefix all your playbook groups, playbook variables and role variables by a short and unique ID [2,3].
+Ideally the playbook name if it fits.
+Ansible only has a global namespace and having two identical variables will lead one to be overwritten by the other.
+This is also true for handler names.
+
+### Playbook & Role Layout, `-Wlayout`
+
+Do not add any custom sub-directory to a role or playbook, this would result into an [undefined behavior][6].
+
+As of version 1.9.2, **8** sub-directories are specified for a role [1]:
   * defaults/
   * files/
   * handlers/
@@ -166,6 +168,13 @@ As of version 1.9.2, 8 sub-directories are specified and used by the Ansible eco
   * templates/
   * vars/
   * library/
+
+And **5** sub-directories are specified for a playbook [1]:
+  * group_vars/
+  * host_vars/
+  * library/
+  * filter_plugins/
+  * roles/
 
 At any point in a future version, other sub-directories might be added
 and if they are already used by your role for anything else, this will break.
@@ -179,7 +188,9 @@ Fill-in your role metadata (meta/main.yml); among other things:
   * description
   * and the supported platforms (enforced by ansible-universe.)
 
-<!-- REFERENCES -->
+References
+----------
+
 [1]: http://docs.ansible.com/ansible/playbooks_best_practices.html
 [2]: https://openedx.atlassian.net/wiki/display/OpenOPS/Ansible+Code+Conventions
 [3]: http://shop.oreilly.com/product/0636920035626.do
