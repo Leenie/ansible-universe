@@ -135,7 +135,8 @@ The following requirements are validated through the `check` target:
 	$ cd myrole
 	$ ansible-universe check
 
-They are all validated by default (`-Wall`), switch on the ones you're interested in with the `-W` option.
+They are all validated by default (`-Wall`).
+You can switch on only the ones you're interested in with the `-W<flag>,…` option.
 
 #### Up-to-date Documentation, `-Wreadme`
 
