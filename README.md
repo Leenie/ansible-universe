@@ -159,7 +159,7 @@ This is also true for handler names.
 
 #### Playbook & Role Layout, `-Wlayout`
 
-Do not add any custom sub-directory to a role or playbook, this would result into an [undefined behavior][6].
+Do not add any custom sub-directory to a role or playbook, this would result into an undefined behavior [6].
 
 As of version 1.9.2:
 
