@@ -70,18 +70,23 @@ Appendix: Ansible Best Practices
 
 ### DESIGN RULES
 
+#### Divide & Conquer
+
+If you need a piece of provisioning more than once, re-design it as a role [1].
+Roles are to Ansible what packages are to your platform or programming language.
+
 #### Playbook Interface
 
-Always assume your playbook users are not developers:
-design your playbooks to be configurable, through groups and variables set in the inventory and varfiles.
+Always assume your playbook users are not developers.
+Design your playbooks to be configurable through groups and variables.
+Users will use those in the inventory and varfiles.
 The inventory and varfiles are expected to be created/edited, but making your user modify a playbook is a design mistake.
 
 #### Role Interface
 
-If you need a piece of provisioning more than once, re-design it as a role [1].
-Roles are to Ansible what packages are to your platform or programming language.
 You can safely assume that role users are actually developers,
-as using them requires some more advanced Ansible skills — but, again, plan for configurability through variables.
+as using them requires some more advanced Ansible skills.
+Design your roles to be configurable through variables.
 
 #### Role Repository
 
