@@ -73,7 +73,7 @@ Appendix: Ansible Best Practices
 #### Playbook Interface
 
 Always assume your playbook users are not developers:
-design your playbooks to be configurable, through _groups_ and _variables_ set in the inventory and varfiles.
+design your playbooks to be configurable, through groups and variables set in the inventory and varfiles.
 The inventory and varfiles are expected to be created/edited, but making your user modify a playbook is a design mistake.
 
 #### Role Interface
@@ -82,23 +82,6 @@ If you need a piece of provisioning more than once, re-design it as a role [1].
 Roles are to Ansible what packages are to your platform or programming language.
 You can safely assume that role users are actually developers,
 as using them requires some more advanced Ansible skills — but, again, plan for configurability through variables.
-
-#### Learnability
-
-Given a playbook or a role, if groups or variables are not documented, they are non-existent.
-Unfortunately, Ansible (as of version 1.9.2) has no native mechanism to probe neither groups nor variables.
-The documentation (generally the `README.md` file) is therefore the only learning medium for the end-users.
-Make sure it is up-to-date.
-
-Generate a complete `README.md`:
-
-	$ cd myrole
-	$ ansible-universe dist
-
-Show role information, including variables:
-
-	$ cd myrole
-	$ ansible-universe show
 
 #### Role Repository
 
@@ -142,6 +125,23 @@ Keep roles self-contained [2].
 Having shared variables between two roles is a design mistake.
 
 ### FORMAL REQUIREMENTS
+
+#### Up-to-date Documentation
+
+Given a playbook or a role, if groups or variables are not documented, they are non-existent.
+Unfortunately, Ansible (as of version 1.9.2) has no native mechanism to probe neither groups nor variables.
+The documentation (generally the `README.md` file) is therefore the only learning medium for the end-users.
+Make sure it is up-to-date.
+
+Generate a complete `README.md`:
+
+	$ cd myrole
+	$ ansible-universe dist
+
+Show role information, including variables:
+
+	$ cd myrole
+	$ ansible-universe show
 
 #### Validated Publication
 
