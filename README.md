@@ -131,7 +131,7 @@ Having shared variables between two roles is a design mistake.
 
 ### FORMAL REQUIREMENTS
 
-#### Up-to-date Documentation, `dist`
+#### Up-to-date Documentation, `dist` Target
 
 Given a playbook or a role, if groups or variables are not documented, they are non-existent as,
 unfortunately, Ansible (as of version 1.9.2) has no native mechanism to probe them.
@@ -148,7 +148,7 @@ List variables:
 	$ cd myrole
 	$ ansible-universe show
 
-#### Validated Publication
+#### Validated Publication, `check` Target
 
 Validate your roles before publishing them.
 
