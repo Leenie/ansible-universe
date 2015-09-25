@@ -131,19 +131,19 @@ Having shared variables between two roles is a design mistake.
 
 ### FORMAL REQUIREMENTS
 
-#### Up-to-date Documentation
+#### Up-to-date Documentation, `dist`
 
-Given a playbook or a role, if groups or variables are not documented, they are non-existent.
-Unfortunately, Ansible (as of version 1.9.2) has no native mechanism to probe neither groups nor variables.
+Given a playbook or a role, if groups or variables are not documented, they are non-existent as,
+unfortunately, Ansible (as of version 1.9.2) has no native mechanism to probe them.
 The documentation (generally the `README.md` file) is therefore the only learning medium for the end-users.
 Make sure it is up-to-date.
 
-Generate a complete `README.md`:
+(Re)generate the `README.md`:
 
 	$ cd myrole
 	$ ansible-universe dist
 
-Show role information, including variables:
+List variables:
 
 	$ cd myrole
 	$ ansible-universe show
