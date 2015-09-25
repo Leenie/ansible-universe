@@ -68,7 +68,7 @@ The `MANIFEST` global has two attributes:
 Appendix: Ansible Best Practices
 --------------------------------
 
-### DESIGN GENERALITIES
+### DESIGN RULES
 
 #### Playbook Interface
 
@@ -100,7 +100,7 @@ Show role information, including variables:
 	$ cd myrole
 	$ ansible-universe show
 
-### Role Repository
+#### Role Repository
 
 Make your roles available either on a public VCS or on a public web repository.
 Prefer web repository to avoid access control issues.
@@ -128,14 +128,7 @@ This entails major issues:
     A playbook may contain binary resources (e.g. images or pre-compiled bytecode.)
     Storing those resources into a code repository is a bad practice (REF?.)
 
-### Validation
-
-Validate your roles before publishing them.
-
-	$ cd myrole
-	$ ansible-universe check
-
-### Dependencies
+#### Dependencies
 
 Do not bundle any role with your playbook (or similarly, do not use git submodules):
 use a requirements file and let Ansible handle its resolution.
@@ -143,10 +136,19 @@ The same principle applies to any build stack: python, java, ruby, etc.
 For instance you do not bundle jar dependencies for a Java project.
 A requirement file can reference a VCS or a web repository indifferently.
 
-### Isolation
+#### Isolation
 
-Keep roles [self-contained][2].
+Keep roles self-contained [2].
 Having shared variables between two roles is a design mistake.
+
+### FORMAL REQUIREMENTS
+
+#### Validated Publication
+
+Validate your roles before publishing them.
+
+	$ cd myrole
+	$ ansible-universe check
 
 #### Naming, `-Wnaming`
 
@@ -159,7 +161,9 @@ This is also true for handler names.
 
 Do not add any custom sub-directory to a role or playbook, this would result into an [undefined behavior][6].
 
-As of version 1.9.2, **8** sub-directories are specified for a role [1]:
+As of version 1.9.2:
+
+**8** sub-directories are specified for a role [1]:
   * defaults/
   * files/
   * handlers/
@@ -169,7 +173,7 @@ As of version 1.9.2, **8** sub-directories are specified for a role [1]:
   * vars/
   * library/
 
-And **5** sub-directories are specified for a playbook [1]:
+**5** sub-directories are specified for a playbook [1]:
   * group_vars/
   * host_vars/
   * library/
@@ -179,7 +183,7 @@ And **5** sub-directories are specified for a playbook [1]:
 At any point in a future version, other sub-directories might be added
 and if they are already used by your role for anything else, this will break.
 
-### Role Packaging
+#### Role Packaging
 
 Fill-in your role metadata (meta/main.yml); among other things:
   * name
