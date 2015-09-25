@@ -15,6 +15,11 @@ The following build targets are available:
   * `publish -r…` publish role to a web repository
   * `distclean` delete generated files
 
+Example:
+
+	$ mkdir foo
+	$ ansible-universe -C foo init dist check
+
 
 Build Manifest
 --------------
@@ -31,13 +36,6 @@ On `dist`, two files are generated:
   * `README.md`, gathering the role description, supported platforms and data on variables.
 
 
-Example
--------
-
-	$ mkdir foo
-	$ ansible-universe -C foo init dist check
-
-
 Installation
 ------------
 
@@ -47,7 +45,7 @@ or, if the PyPI repository is not available:
 
 	$ pip install --user git+https://github.com/fclaerho/ansible-universe.git
 
-The package will be installed in your [user site-packages](https://www.python.org/dev/peps/pep-0370/#specification) directory; make sure its `bin/` sub-directory is in your shell lookup path.
+The package will be installed in your [user site-packages](https://www.python.org/dev/peps/pep-0370/#specification) directory.
 
 To uninstall:
 
