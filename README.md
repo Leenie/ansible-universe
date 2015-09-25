@@ -148,14 +148,14 @@ A requirement file can reference a VCS or a web repository indifferently.
 Keep roles [self-contained][2].
 Having shared variables between two roles is a design mistake.
 
-### Naming, `-Wnaming`
+#### Naming, `-Wnaming`
 
 Prefix all your playbook groups, playbook variables and role variables by a short and unique ID [2,3].
 Ideally the playbook name if it fits.
 Ansible only has a global namespace and having two identical variables will lead one to be overwritten by the other.
 This is also true for handler names.
 
-### Playbook & Role Layout, `-Wlayout`
+#### Playbook & Role Layout, `-Wlayout`
 
 Do not add any custom sub-directory to a role or playbook, this would result into an [undefined behavior][6].
 
@@ -191,9 +191,9 @@ Fill-in your role metadata (meta/main.yml); among other things:
 References
 ----------
 
-[1]: http://docs.ansible.com/ansible/playbooks_best_practices.html
-[2]: https://openedx.atlassian.net/wiki/display/OpenOPS/Ansible+Code+Conventions
-[3]: http://shop.oreilly.com/product/0636920035626.do
-[4]: https://www.python.org/dev/peps/pep-0440/#version-specifiers
-[5]: https://en.wikipedia.org/wiki/Principle_of_least_astonishment
-[6]: https://en.wikipedia.org/wiki/Undefined_behavior
+  * 1 http://docs.ansible.com/ansible/playbooks_best_practices.html
+  * 2 https://openedx.atlassian.net/wiki/display/OpenOPS/Ansible+Code+Conventions
+  * 3 http://shop.oreilly.com/product/0636920035626.do
+  * 4 https://www.python.org/dev/peps/pep-0440/#version-specifiers
+  * 5 https://en.wikipedia.org/wiki/Principle_of_least_astonishment
+  * 6 https://en.wikipedia.org/wiki/Undefined_behavior
