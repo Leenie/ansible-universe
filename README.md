@@ -154,7 +154,7 @@ This is also true for handler names.
 
 #### Directory Layout, `-Wlayout`
 
-Do not add any custom sub-directory to a role or playbook, this would result into undefined behavior [6].
+Do not add any custom sub-directory to a role or playbook, this would lead to undefined behavior [6].
 
 As of version 1.9.2:
 
