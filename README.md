@@ -156,7 +156,7 @@ This is also true for handler names.
 
 Do not add any custom sub-directory to a role or playbook, this would lead to undefined behavior [6].
 
-As of version 1.9.2:
+As of Ansible version 1.9.2:
 
 **8** sub-directories are specified for a role [1]:
   * defaults/
