@@ -138,12 +138,14 @@ unfortunately, Ansible (as of version 1.9.2) has no native mechanism to probe th
 The documentation (generally the `README.md` file) is therefore the only learning medium for the end-users.
 Make sure it is up-to-date.
 
-(Re)generate the `README.md`:
+(Re)generate the `README.md` with `dist`:
 
 	$ cd myrole
 	$ ansible-universe dist
 
-List variables:
+Keep in mind `dist` re-generate the entire distribution so use `-x` to exclude paths.
+
+List variables with `show`:
 
 	$ cd myrole
 	$ ansible-universe show
