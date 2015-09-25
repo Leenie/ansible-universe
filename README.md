@@ -59,9 +59,10 @@ The builtin linter can easily be extended with your own checks:
   * in the universe directory, create a new module defining the `MANIFEST` dict
   * in `__init__.py`, register that new module in the `MANIFESTS` dict
 
-The `MANIFEST` global has two attributes:
+The `MANIFEST` global has three attributes:
+  * `with_manifest`, if set, indicates this check is done on a play, otherwise on the manifest
+  * `predicate`, the actual check callback,  taking either a `play` or a `manifest` argument
   * `message`, the message to display when the check fails
-  * `predicate`, the callback — taking a `play`argument — used to do the actual check;
 
 
 Appendix: Ansible Best Practices
@@ -138,7 +139,17 @@ The following requirements are validated through the `check` target:
 They are all validated by default (`-Wall`).
 You can switch on only the ones you're interested in with the `-W<flag>,…` option.
 
-#### Up-to-date Documentation, `-Wreadme`
+#### Metadata, `-Wmetadata`
+
+Make sure your role metadata are up-to-date so that it can be published later:
+
+  * name
+  * version (extended attribute),
+  * authors
+  * description
+  * and the supported platforms
+
+#### Documentation, `-Wreadme`
 
 Given a playbook or a role, if groups or variables are not documented, they are non-existent as,
 unfortunately, Ansible (as of version 1.9.2) has no native mechanism to probe them.
@@ -178,14 +189,6 @@ As of Ansible version 1.9.2:
 At any point in a future version, other sub-directories might be added
 and if they are already used by your role for anything else, this will break.
 
-#### Role Packaging
-
-Fill-in your role metadata (meta/main.yml); among other things:
-  * name
-  * version (extended ansible-universe attribute),
-  * authors
-  * description
-  * and the supported platforms (enforced by ansible-universe.)
 
 References
 ----------

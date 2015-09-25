@@ -319,10 +319,10 @@ class Role(object):
 			fckit.chdir(cwd)
 			fckit.remove(tmpdir)
 
-	def check_naming(self):
-		for key in self.variables:
-			if not key.startswith(self.prefix):
-				warning(key, "variable name is not properly prefixed (%s)" % self.prefix)
+def check_maing(manifest):
+	for key in self.variables:
+		if not key.startswith(self.prefix):
+			warning(key, "variable name is not properly prefixed (%s)" % self.prefix)
 
 	def check_layout(self):
 		for path in os.listdir("."):
