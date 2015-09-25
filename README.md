@@ -164,9 +164,9 @@ Ideally the playbook name if it fits.
 Ansible only has a global namespace and having two identical variables will lead one to be overwritten by the other.
 This is also true for handler names.
 
-#### Playbook & Role Layout, `-Wlayout`
+#### Directory Layout, `-Wlayout`
 
-Do not add any custom sub-directory to a role or playbook, this would result into an undefined behavior [6].
+Do not add any custom sub-directory to a role or playbook, this would result into undefined behavior [6].
 
 As of version 1.9.2:
 
