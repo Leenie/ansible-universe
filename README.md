@@ -8,6 +8,7 @@
 
 The following _build targets_ are available:
   * `init` instantiate role template
+  * `show` show role information
   * `dist` generate ansible distributable role files
   * `check` include role in a dummy playbook and check syntax
   * `package` package role
@@ -68,7 +69,7 @@ The `MANIFEST` global has two attributes:
 Appendix: Ansible Best Practices
 --------------------------------
 
-### DESIGN RULES
+### GENERAL DESIGN RULES
 
 #### Divide & Conquer
 
@@ -131,31 +132,19 @@ Having shared variables between two roles is a design mistake.
 
 ### FORMAL REQUIREMENTS
 
-#### Up-to-date Documentation, `dist` Target
+The following requirements are validated through the `check` target:
+
+	$ cd myrole
+	$ ansible-universe check
+
+They are all validated by default (`-Wall`), switch on the ones you're interested in with the `-W` option.
+
+#### Up-to-date Documentation, `-Wreadme`
 
 Given a playbook or a role, if groups or variables are not documented, they are non-existent as,
 unfortunately, Ansible (as of version 1.9.2) has no native mechanism to probe them.
 The documentation (generally the `README.md` file) is therefore the only learning medium for the end-users.
 Make sure it is up-to-date.
-
-(Re)generate the `README.md` with `dist`:
-
-	$ cd myrole
-	$ ansible-universe dist
-
-Keep in mind `dist` re-generate the entire distribution so use `-x` to exclude paths.
-
-List variables with `show`:
-
-	$ cd myrole
-	$ ansible-universe show
-
-#### Validated Publication, `check` Target
-
-Validate your roles before publishing them.
-
-	$ cd myrole
-	$ ansible-universe check
 
 #### Naming, `-Wnaming`
 
