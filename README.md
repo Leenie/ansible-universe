@@ -53,13 +53,12 @@ To uninstall:
 Development Guide
 -----------------
 
-The builtin linter can easily be extended with your own checks:
+The built-in linter can easily be extended with your own checks:
   * in the universe directory, create a new module defining the `MANIFEST` dict
   * in `__init__.py`, register that new module in the `MANIFESTS` dict
 
 The `MANIFEST` global has three attributes:
-  * `with_manifest`, if set, indicates this check is done on a play, otherwise on the manifest
-  * `predicate`, the actual check callback,  taking either a `play` or a `manifest` argument
+  * `predicate`, the actual check callback, taking a single `play` argument
   * `message`, the message to display when the check fails
 
 
