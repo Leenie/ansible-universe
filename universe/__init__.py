@@ -9,13 +9,14 @@ Usage:
   ansible-universe --help
 
 Options:
-  -C PATH, --directory PATH  set working directory
-  -r URL, --repository URL   set HTTP repository
-  -x PATHS, --exclude PATHS  comma-separated list of paths to ignore
-  -v, --verbose              output executed commands
-  -h, --help                 display full help text
-  --no-color                 disable colored output
-  -a, --all                  with clean, remove distdir
+  -W FLAGS, --warnings FLAGS  comma-separated list of flags to enable
+  -C PATH, --directory PATH   set working directory
+  -x PATHS, --exclude PATHS   comma-separated list of paths to ignore
+  -r URL, --repository URL    set HTTP repository
+  -v, --verbose               output executed commands
+  -h, --help                  display full help text
+  --no-color                  disable colored output
+  -a, --all                   with clean, remove distdir
 
 TARGET:
   * init         instantiate role template
@@ -37,7 +38,7 @@ Universe uses the ansible-galaxy manifest (meta/main.yml) with extra attributes:
   * inconditions  maps tasks filename to include conditions
 """
 
-import textwrap, glob, time, sys, os
+import textwrap, glob, sys, os
 
 import docopt, jinja2, fckit, yaml # 3rd-party
 
@@ -248,12 +249,11 @@ class Role(object):
 	def _generate_maintask(self):
 		platforms = self.platforms
 		mainplays = []
-		author = self.author or "the role author"
 		if platforms:
 			mainplays.append({
 				"name": "assert the target platform is supported",
 				"fail": {
-					"msg": "unsupported platform -- please contact %s for support" % author,
+					"msg": "unsupported platform -- please contact %s for support" % self.author,
 				},
 				"when": "ansible_distribution not in %s" % list(platform["name"] for platform in platforms),
 			})
@@ -341,7 +341,7 @@ class Role(object):
 				"library"):
 				warning(path, "undefined role sub-directory")
 
-	def lint(self):
+	def lint(self, manifests):
 		for dirname, _, basenames in os.walk(TASKSDIR):
 			for basename in basenames:
 				_, extname = os.path.splitext(basename)
@@ -350,16 +350,19 @@ class Role(object):
 					fckit.trace("linting", path)
 					tasks = unmarshall(path, default = []) or []
 					for idx, play in enumerate(tasks):
-						for manifest in MANIFESTS:
+						for manifest in manifests:
 							if not manifest["predicate"](play):
 								name = play.get("name", "play#%i" % (idx + 1))
 								warning("%s[%s]" % (path, name), manifest["message"])
 
-	def check(self):
-		self.check_syntax()
-		self.check_naming()
-		self.check_layout()
-		self.lint()
+	def check(self, **kwargs):
+		if not kwargs or kwargs.get("syntax", False):
+			self.check_syntax()
+		if not kwargs or kwargs.get("naming", False):
+			self.check_naming()
+		if not kwargs or kwargs.get("layout", False):
+			self.check_layout()
+		self.lint(manifest for manifest in MANIFESTS if not kwargs or kwargs.get(manifest["name"], False))
 
 	def _get_package_path(self):
 		"return distribution package path"
@@ -397,7 +400,7 @@ def main(args = None):
 			"init": role.init,
 			"show": role.show,
 			"dist": role.dist,
-			"check": role.check,
+			"check": lambda: role.check({key: True for key in opts["--warnings"].split(",")}) if opts["--warnings"] else role.check(),
 			"package": role.package,
 			"publish": lambda: role.publish(opts["--repository"]),
 			"distclean": role.distclean,
@@ -409,3 +412,4 @@ def main(args = None):
 				raise Error(target, "no such target")
 	except (fckit.Error, Error) as exc:
 		raise SystemExit(fckit.red(exc))
+

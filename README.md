@@ -129,7 +129,7 @@ Instead make your roles configurable via variables and handle integration issues
 
 ### FORMAL REQUIREMENTS
 
-The following requirements are all (`-Wall`) validated via the `check` target:
+The following requirements are all validated by default via the `check` target:
 
 	$ cd myrole
 	$ ansible-universe check
