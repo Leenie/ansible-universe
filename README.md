@@ -125,6 +125,7 @@ A requirement file can reference a VCS or a web repository indifferently.
 
 Keep roles [self-contained][2].
 Having shared variables between two roles is a design mistake.
+Instead make your roles configurable via variables and handle integration issues in the corresponding play.
 
 ### FORMAL REQUIREMENTS
 
