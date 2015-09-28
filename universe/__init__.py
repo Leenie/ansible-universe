@@ -95,6 +95,8 @@ class Role(object):
 
 	def _get_manifest(self):
 		"return role manifest as a dict"
+		if not os.path.exists(META_PATH):
+			raise Error("missing role manifest")
 		return unmarshall(META_PATH)
 
 	def _set_manifest(self, _dict):
@@ -174,15 +176,24 @@ class Role(object):
 		return self.manifest.get("inconditions", {})
 
 	def init(self):
-		"use ansible-galaxy to populate current directory"
-		tmpdir = "_temp"
-		fckit.check_call("ansible-galaxy", "init", tmpdir, "--force")
-		for path in (README_PATH, MAINTASK_PATH):
-			fckit.remove(os.path.join(tmpdir, path))
-		for basename in os.listdir(tmpdir):
-			os.rename(os.path.join(tmpdir, basename), basename)
-		fckit.remove(tmpdir)
-		self.version = "0.0.1"
+		fckit.mkdir(os.path.dirname(MAINTASK_PATH))
+		fckit.mkdir(os.path.dirname(META_PATH))
+		marshall(
+			path = META_PATH,
+			obj = {
+				"dependencies": [],
+				"inconditions": {},
+				"galaxy_info": {
+					"min_ansible_version": "1.8.4",
+					"description": None,
+					"platforms": [],
+					"license": "MIT",
+					"author": None,
+				},
+				"variables": {},
+				"version": "0.0.1",
+			}
+		)
 
 	def show(self):
 		print yaml.dump(
@@ -203,7 +214,7 @@ class Role(object):
 
 			## {{ name }}
 			
-			{{ description or "No description (yet.)" }}
+			{{ description or "(no description 	azf	@@	 yet.)" }}
 
 
 			## Supported Platforms
@@ -322,13 +333,11 @@ class Role(object):
 			fckit.remove(tmpdir)
 
 	def check_naming(self):
-		fckit.trace("checking naming")
 		for key in self.variables:
 			if not key.startswith(self.prefix):
 				warning(key, "variable not properly prefixed, expected '%s' prefix" % self.prefix)
 
 	def check_layout(self):
-		fckit.trace("checking layout")
 		for path in os.listdir("."):
 			if os.path.isdir(path) and not path.startswith(".") and path not in (
 				"defaults",
@@ -355,14 +364,16 @@ class Role(object):
 								name = play.get("name", "play#%i" % (idx + 1))
 								warning("%s[%s]" % (path, name), manifest["message"])
 
-	def check(self, **kwargs):
-		if not kwargs or kwargs.get("syntax", False):
+	def check(self, *flags):
+		if not flags or "syntax" in flags:
 			self.check_syntax()
-		if not kwargs or kwargs.get("naming", False):
+		if not flags or "naming" in flags:
 			self.check_naming()
-		if not kwargs or kwargs.get("layout", False):
+		if not flags or "layout" in flags:
 			self.check_layout()
-		self.lint(manifest for manifest in MANIFESTS if not kwargs or kwargs.get(manifest["name"], False))
+		manifests = tuple(manifest for manifest in MANIFESTS if not flags or manifest["name"] in flags)
+		if manifests:
+			self.lint(manifests)
 
 	def _get_package_path(self):
 		"return distribution package path"
@@ -400,7 +411,7 @@ def main(args = None):
 			"init": role.init,
 			"show": role.show,
 			"dist": role.dist,
-			"check": lambda: role.check({key: True for key in opts["--warnings"].split(",")}) if opts["--warnings"] else role.check(),
+			"check": lambda: role.check(*(opts["--warnings"].split(",") if opts["--warnings"] else ())),
 			"package": role.package,
 			"publish": lambda: role.publish(opts["--repository"]),
 			"distclean": role.distclean,

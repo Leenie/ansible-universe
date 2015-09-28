@@ -5,7 +5,7 @@ import unittest, os
 import universe, fckit # 3rd-party
 
 # files generated following 'init':
-INITPATHS = ("meta/main.yml", "handlers/main.yml", "defaults/main.yml")
+INITPATHS = ("meta/main.yml", "tasks")
 
 # files generated following 'dist':
 DISTPATHS = ("README.md", "tasks/main.yml")
