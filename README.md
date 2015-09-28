@@ -128,12 +128,11 @@ Having shared variables between two roles is a design mistake.
 
 ### FORMAL REQUIREMENTS
 
-The following requirements are validated through the `check` target:
+The following requirements are all (`-Wall`) validated via the `check` target:
 
 	$ cd myrole
 	$ ansible-universe check
 
-They are all validated by default (`-Wall`).
 You can switch on only the ones you're interested in with the `-W<flag>,…` option.
 
 #### Metadata, `-Wmetadata`
