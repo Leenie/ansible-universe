@@ -31,7 +31,7 @@ Build Manifest
   * `inconditions`, maps tasks filename to include conditions
 
 On `dist`, two files are generated:
-  * `tasks/main.yml`, performing the platform check and including any other .yml file in tasks/
+  * `tasks/main.yml`, performing the platform check and including any other YAML file in `tasks/`.
     Conditions to inclusions can be specified via the `inconditions` attribute of the manifest.
   * `README.md`, gathering the role description, supported platforms and data on variables.
 
