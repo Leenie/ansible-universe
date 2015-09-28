@@ -116,7 +116,7 @@ This entails major issues:
 #### Dependencies
 
 Do not bundle any role with your playbook (or similarly, do not use git submodules):
-use a requirements file and let Ansible handle its resolution.
+use a requirements file and let ansible-galaxy handle its resolution.
 The same principle applies to any build stack: python, java, ruby, etc.
 For instance you do not bundle jar dependencies for a Java project.
 A requirement file can reference a VCS or a web repository indifferently.
