@@ -166,14 +166,14 @@ at any point in a future version, other sub-directories might be needed by Ansib
 and if they are already used by your role for anything else, this will break.
 
 As of Ansible version 1.9.2, **8** sub-directories are [specified][1] for a role:
-  * defaults/
-  * files/
-  * handlers/
-  * meta/
-  * tasks/
-  * templates/
-  * vars/
-  * library/
+  * `defaults/`
+  * `files/`
+  * `handlers/`
+  * `meta/`
+  * `tasks/`
+  * `templates/`
+  * `vars/`
+  * `library/`
 
 And **5** sub-directories are [specified][1] for a playbook:
   * `group_vars/`
