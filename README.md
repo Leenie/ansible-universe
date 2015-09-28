@@ -69,7 +69,7 @@ Appendix: Ansible Best Practices
 
 #### Divide & Conquer
 
-If you need a piece of provisioning more than once, re-design it as a role [1].
+If you need a piece of provisioning more than once, re-design it as a [role][1].
 Roles are to Ansible what packages are to your platform or programming language.
 
 #### Playbook Interface
@@ -106,7 +106,7 @@ This entails major issues:
     which is not related to the “human readable” version strings (e.g. “v1.0.0”.)
     Version strings are generally tag names created manually by developers when necessary.
     As version strings are unusable by git and by extension, by ansible-galaxy,
-    complex version expressions cannot be used when specifying a dependency.
+    [version expressions][4] cannot be used when specifying a dependency.
     With other build tools, it is common for instance to request an compatible version of a dependency
     within a range and include a subset of releases known as broken, e.g. `>=2.1, <4a0, !=2.4rc, != 2.5rc`
   * __Inefficient Binary Resources Storage__
@@ -123,7 +123,7 @@ A requirement file can reference a VCS or a web repository indifferently.
 
 #### Isolation
 
-Keep roles self-contained [2].
+Keep roles [self-contained][2].
 Having shared variables between two roles is a design mistake.
 
 ### FORMAL REQUIREMENTS
@@ -155,18 +155,18 @@ Make sure it is up-to-date.
 
 #### Naming, `-Wnaming`
 
-Prefix all your playbook groups, playbook variables and role variables by a short and unique ID [2,3].
+[Prefix][2]([bis][3]) all your playbook groups, playbook variables and role variables by a short and unique ID.
 Ideally the playbook name if it fits.
 Ansible only has a global namespace and having two identical variables will lead one to be overwritten by the other.
 This is also true for handler names.
 
 #### Directory Layout, `-Wlayout`
 
-Do not add any custom sub-directory to a role or playbook, this would lead to [undefined behavior][6].
+Do not add any custom sub-directory to a role or playbook, this would lead to [undefined behavior][6]:
+at any point in a future version, other sub-directories might be needed by Ansible
+and if they are already used by your role for anything else, this will break.
 
-As of Ansible version 1.9.2:
-
-**8** sub-directories are [specified][1] for a role:
+As of Ansible version 1.9.2, **8** sub-directories are [specified][1] for a role:
   * defaults/
   * files/
   * handlers/
@@ -176,15 +176,12 @@ As of Ansible version 1.9.2:
   * vars/
   * library/
 
-**5** sub-directories are [specified][1] for a playbook:
+And **5** sub-directories are [specified][1] for a playbook:
   * `group_vars/`
   * `host_vars/`
   * `library/`
   * `filter_plugins/`
   * `roles/`
-
-At any point in a future version, other sub-directories might be added
-and if they are already used by your role for anything else, this will break.
 
 
 <!-- references -->
