@@ -89,7 +89,7 @@ class Role(object):
 	def __init__(self, excluded_paths = None, directory = None):
 		self.excluded_paths = excluded_paths or () # user files not to be overwritten
 		if directory:
-			fckit.chdir(path)
+			fckit.chdir(directory)
 		self.name = os.path.basename(os.getcwd())
 
 	def _get_manifest(self):
@@ -128,34 +128,34 @@ class Role(object):
 		return self.manifest["galaxy_info"].get("platforms", ())
 
 	@property
-	def variables(self, _cache = {}):
+	def variables(self):
 		"return dict mapping variable names to {'constant', 'default', 'description'}"
-		if not _cache:
-			for key, value in (unmarshall(DEFAULTS_PATH) or {}).items():
-				_cache[key] = {
+		res = {}
+		for key, value in (unmarshall(DEFAULTS_PATH) or {}).items():
+			res[key] = {
+				"description": None,
+				"constant": False,
+				"value": value,
+			}
+		for key, value in (unmarshall(VARS_PATH) or {}).items():
+			if key in res:
+				raise Error(key, "variable both set in vars/ and defaults/")
+			else:
+				res[key] = {
 					"description": None,
-					"constant": False,
+					"constant": True,
 					"value": value,
 				}
-			for key, value in (unmarshall(VARS_PATH) or {}).items():
-				if key in _cache:
-					raise Error(key, "variable both set in vars/ and defaults/")
-				else:
-					_cache[key] = {
-						"description": None,
-						"constant": True,
-						"value": value,
-					}
-			for key, value in self.manifest.get("variables", {}).items():
-				if key in _cache:
-					_cache[key]["description"] = value
-				else:
-					_cache[key] = {
-						"description": value,
-						"constant": False,
-						"value": None,
-					}
-		return _cache
+		for key, value in self.manifest.get("variables", {}).items():
+			if key in res:
+				res[key]["description"] = value
+			else:
+				res[key] = {
+					"description": value,
+					"constant": False,
+					"value": None,
+				}
+		return res
 
 	@property
 	def description(self):
@@ -200,7 +200,9 @@ class Role(object):
 		template = """
 			<!-- THIS IS A GENERATED FILE, DO NOT EDIT -->
 
-			**{{ name }}** — {{ description or "No description (yet.)" }}
+			## {{ name }}
+			
+			{{ description or "No description (yet.)" }}
 
 
 			## Supported Platforms
@@ -260,6 +262,7 @@ class Role(object):
 			fckit.trace("including", name)
 			if name in self.inconditions:
 				mainplays.append({
+					"name": "%s is included" % name,
 					"include": name,
 					"when": self.inconditions[name],
 				})
@@ -314,18 +317,29 @@ class Role(object):
 				path = os.path.join(tmpdir, "ansible.cfg"))
 			# perform the check:
 			fckit.check_call("ansible-playbook", "playbook.yml", "--syntax-check")
-			fckit.trace("check passed")
 		finally:
 			fckit.chdir(cwd)
 			fckit.remove(tmpdir)
 
-def check_maing(manifest):
-	for key in self.variables:
-		if not key.startswith(self.prefix):
-			warning(key, "variable name is not properly prefixed (%s)" % self.prefix)
+	def check_naming(self):
+		fckit.trace("checking naming")
+		for key in self.variables:
+			if not key.startswith(self.prefix):
+				warning(key, "variable not properly prefixed, expected '%s' prefix" % self.prefix)
 
 	def check_layout(self):
+		fckit.trace("checking layout")
 		for path in os.listdir("."):
+			if os.path.isdir(path) and not path.startswith(".") and path not in (
+				"defaults",
+				"files",
+				"handlers",
+				"meta",
+				"tasks",
+				"templates",
+				"vars",
+				"library"):
+				warning(path, "undefined role sub-directory")
 
 	def lint(self):
 		for dirname, _, basenames in os.walk(TASKSDIR):
@@ -333,7 +347,7 @@ def check_maing(manifest):
 				_, extname = os.path.splitext(basename)
 				if extname == ".yml":
 					path = os.path.join(dirname, basename)
-					fckit.trace("linting '%s'" % path)
+					fckit.trace("linting", path)
 					tasks = unmarshall(path, default = []) or []
 					for idx, play in enumerate(tasks):
 						for manifest in MANIFESTS:
@@ -341,9 +355,10 @@ def check_maing(manifest):
 								name = play.get("name", "play#%i" % (idx + 1))
 								warning("%s[%s]" % (path, name), manifest["message"])
 
-	def check(self, syntax = True, naming = True, lint = True):
+	def check(self):
 		self.check_syntax()
 		self.check_naming()
+		self.check_layout()
 		self.lint()
 
 	def _get_package_path(self):

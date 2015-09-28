@@ -6,7 +6,7 @@
   * role linter implementing best practices
   * packaging & publishing into private web repositories
 
-The following build targets are available:
+The following [build targets][7] are available:
   * `init` instantiate role template
   * `show` show role information
   * `dist` generate ansible distributable role files
@@ -25,7 +25,7 @@ Build Manifest
 --------------
 
 **Ansible-universe** uses the ansible-galaxy manifest (`meta/main.yml`) with extra attributes:
-  * `prefix`, defaults to rolename
+  * `prefix`, variable prefix, defaults to rolename
   * `version`, defaults to 0.0.1
   * `variables`, maps names to descriptions
   * `inconditions`, maps tasks filename to include conditions
@@ -165,11 +165,11 @@ This is also true for handler names.
 
 #### Directory Layout, `-Wlayout`
 
-Do not add any custom sub-directory to a role or playbook, this would lead to undefined behavior [6].
+Do not add any custom sub-directory to a role or playbook, this would lead to [undefined behavior][6].
 
 As of Ansible version 1.9.2:
 
-**8** sub-directories are specified for a role [1]:
+**8** sub-directories are [specified][1] for a role:
   * defaults/
   * files/
   * handlers/
@@ -179,23 +179,23 @@ As of Ansible version 1.9.2:
   * vars/
   * library/
 
-**5** sub-directories are specified for a playbook [1]:
-  * group_vars/
-  * host_vars/
-  * library/
-  * filter_plugins/
-  * roles/
+**5** sub-directories are [specified][1] for a playbook:
+  * `group_vars/`
+  * `host_vars/`
+  * `library/`
+  * `filter_plugins/`
+  * `roles/`
 
 At any point in a future version, other sub-directories might be added
 and if they are already used by your role for anything else, this will break.
 
 
-References
-----------
+<!-- references -->
 
-  * 1 http://docs.ansible.com/ansible/playbooks_best_practices.html
-  * 2 https://openedx.atlassian.net/wiki/display/OpenOPS/Ansible+Code+Conventions
-  * 3 http://shop.oreilly.com/product/0636920035626.do
-  * 4 https://www.python.org/dev/peps/pep-0440/#version-specifiers
-  * 5 https://en.wikipedia.org/wiki/Principle_of_least_astonishment
-  * 6 https://en.wikipedia.org/wiki/Undefined_behavior
+[1]: http://docs.ansible.com/ansible/playbooks_best_practices.html
+[2]: https://openedx.atlassian.net/wiki/display/OpenOPS/Ansible+Code+Conventions
+[3]: http://shop.oreilly.com/product/0636920035626.do
+[4]: https://www.python.org/dev/peps/pep-0440/#version-specifiers
+[5]: https://en.wikipedia.org/wiki/Principle_of_least_astonishment
+[6]: https://en.wikipedia.org/wiki/Undefined_behavior
+[7]: https://github.com/fclaerho/buildstack#glossary
