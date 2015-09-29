@@ -140,9 +140,9 @@ You can switch on only the ones you're interested in with the `-W<flag>,…` opt
 
 Make sure your role manifest contains the [required][8] information:
 
-  * Name
   * Version (extended attribute),
   * Authors
+  * License
   * Description
   * Supported platforms
 
