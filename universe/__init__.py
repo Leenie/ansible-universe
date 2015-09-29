@@ -364,6 +364,8 @@ class Role(object):
 			fckit.remove(tmpdir)
 
 	def check_readme(self):
+		if not os.path.exists(README_PATH):
+			raise Error(README_PATH, "missing documentation")
 		with open(README_PATH, "r") as fp:
 			text = fp.read()
 			for key in self.variables:
