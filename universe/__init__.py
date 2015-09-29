@@ -414,7 +414,7 @@ class Role(object):
 	def publish(self, repository_url):
 		if not repository_url:
 			raise Error("no repository")
-		fckit.check_call(("curl", "-k", "-T", self._get_package_path(), repository_url))
+		fckit.check_call("curl", "-k", "-T", self._get_package_path(), repository_url)
 
 	def distclean(self):
 		for path in (MAINTASK_PATH, README_PATH, DISTDIR):

@@ -4,7 +4,7 @@ import setuptools
 
 setuptools.setup(
 	name = "ansible-universe", # https://www.python.org/dev/peps/pep-0426/#name
-	version = "1.9.0", # https://www.python.org/dev/peps/pep-0440/
+	version = "1.9.1", # https://www.python.org/dev/peps/pep-0440/
 	packages = [
 		"universe",
 	], # https://pythonhosted.org/setuptools/setuptools.html#using-find-packages
