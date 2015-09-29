@@ -138,7 +138,7 @@ You can switch on only the ones you're interested in with the `-W<flag>,…` opt
 
 #### Metadata, `-Wmetadata`
 
-Make sure your role metadata are up-to-date so that it can be published later:
+[Make sure your role metadata is up-to-date][8] so that it can be published later:
 
   * name
   * version (extended attribute),
@@ -151,11 +151,11 @@ Make sure your role metadata are up-to-date so that it can be published later:
 Given a playbook or a role, if groups or variables are not documented, they are non-existent as,
 unfortunately, Ansible (as of version 1.9.2) has no native mechanism to probe them.
 The documentation (generally the `README.md` file) is therefore the only learning medium for the end-users.
-Make sure it is up-to-date.
+[Make sure your documentation it is up-to-date][8].
 
 #### Naming, `-Wnaming`
 
-[Prefix][2]([bis][3]) all your playbook groups, playbook variables and role variables by a short and unique ID.
+[Prefix][2] ([bis][3], [rebis][8]) all your playbook groups, playbook variables and role variables by a short and unique ID.
 Ideally the playbook name if it fits.
 Ansible only has a global namespace and having two identical variables will lead one to be overwritten by the other.
 This is also true for handler names.
@@ -192,4 +192,5 @@ And **5** sub-directories are [specified][1] for a playbook:
 [4]: https://www.python.org/dev/peps/pep-0440/#version-specifiers
 [5]: https://en.wikipedia.org/wiki/Principle_of_least_astonishment
 [6]: https://en.wikipedia.org/wiki/Undefined_behavior
-[7]: https://github.com/fclaerho/buildstack#glossary
+[7]: https://github.com/fclaerho/buildstack#glossar
+[8]: https://galaxy.ansible.com/intro#share
