@@ -42,7 +42,7 @@ class Test(unittest.TestCase):
 
 	def test_package(self):
 		self._main("package")
-		path = os.path.join(self.tmpdir, "dist", "%s-0.0.1.tgz" % os.path.basename(self.tmpdir))
+		path = os.path.join(self.tmpdir, "%s-0.0.1.tgz" % os.path.basename(self.tmpdir))
 		self._assert_path_state(path)
 
 if __name__ == "__main__": unittest.main(verbosity = 2)

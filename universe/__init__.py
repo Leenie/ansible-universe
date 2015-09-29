@@ -16,8 +16,7 @@ Options:
   -v, --verbose               output executed commands
   -h, --help                  display full help text
   --no-color                  disable colored output
-  -a, --all                   with clean, remove distdir
-  -E                          convert warning to error
+  -E                          convert warnings to errors
 
 TARGET:
   * init       instantiate role template
@@ -49,7 +48,6 @@ META_PATH = os.path.join("meta", "main.yml")
 VARS_PATH = os.path.join("vars", "main.yml")
 TASKSDIR = "tasks"
 MAINTASK_PATH = os.path.join(TASKSDIR, "main.yml")
-DISTDIR = "dist"
 
 MANIFESTS = tuple(dict({"name": name}, **__import__(name, globals()).MANIFEST) for name in (
 	"task_has_no_remote_user",
@@ -370,7 +368,7 @@ class Role(object):
 			text = fp.read()
 			for key in self.variables:
 				if not key in text:
-					warning(key, "variable not documented in README")
+					warning(key, "variable not documented in %s" % README_PATH)
 
 	def check_naming(self):
 		for key in self.variables:
@@ -419,23 +417,20 @@ class Role(object):
 		if manifests:
 			self.lint(manifests)
 
-	def _get_package_path(self):
-		"return distribution package path"
-		basename = "%s-%s.tgz" % (self.name, self.version)
-		return os.path.join(DISTDIR, basename)
+	@property
+	def package_name(self):
+		return "%s-%s.tgz" % (self.name, self.version)
 
 	def package(self):
-		if not os.path.exists(DISTDIR):
-			fckit.mkdir(DISTDIR)
-		fckit.check_call("tar", "czf", self._get_package_path(), "--exclude", DISTDIR, ".")
+		fckit.check_call("tar", "czf", self.package_name, "--exclude", self.package_name, ".")
 
 	def publish(self, repository_url):
 		if not repository_url:
 			raise Error("no repository")
-		fckit.check_call("curl", "-k", "-T", self._get_package_path(), repository_url)
+		fckit.check_call("curl", "-k", "-T", self.package_name, repository_url)
 
 	def distclean(self):
-		for path in (MAINTASK_PATH, README_PATH, DISTDIR):
+		for path in (MAINTASK_PATH, README_PATH, self.package_name):
 			if not path in self.excluded_paths and os.path.exists(path):
 				fckit.remove(path)
 
