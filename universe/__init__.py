@@ -19,13 +19,13 @@ Options:
   -E                          convert warnings to errors
 
 TARGET:
-  * init       instantiate role template
-  * show       show role information
-  * dist       generate ansible distributable role files
-  * check      include role in a dummy playbook and check syntax
-  * package    package role
-  * publish    publish role to a web repository
-  * distclean  delete generated files
+  * init     instantiate role template
+  * show     show role information
+  * dist     generate ansible distributable role files
+  * clean    delete all generated files
+  * check    include role in a dummy playbook and check syntax
+  * package  package role
+  * publish  publish role to a web repository
 
 Example:
   $ mkdir foo
@@ -48,6 +48,7 @@ META_PATH = os.path.join("meta", "main.yml")
 VARS_PATH = os.path.join("vars", "main.yml")
 TASKSDIR = "tasks"
 MAINTASK_PATH = os.path.join(TASKSDIR, "main.yml")
+DISTDIR = "dist"
 
 MANIFESTS = tuple(dict({"name": name}, **__import__(name, globals()).MANIFEST) for name in (
 	"task_has_no_remote_user",
@@ -418,19 +419,21 @@ class Role(object):
 			self.lint(manifests)
 
 	@property
-	def package_name(self):
-		return "%s-%s.tgz" % (self.name, self.version)
+	def package_path(self):
+		return os.path.join(DISTDIR, "%s-%s.tgz" % (self.name, self.version))
 
 	def package(self):
-		fckit.check_call("tar", "czf", self.package_name, "--exclude", "./%s" % self.package_name, ".")
+		if not os.path.exists(DISTDIR):
+			fckit.mkdir(DISTDIR)
+		fckit.check_call("tar", "czf", self.package_path, "--exclude", DISTDIR, ".")
 
 	def publish(self, repository_url):
 		if not repository_url:
 			raise Error("no repository")
-		fckit.check_call("curl", "-k", "-T", self.package_name, repository_url)
+		fckit.check_call("curl", "-k", "-T", self.package_path, repository_url)
 
-	def distclean(self):
-		for path in (MAINTASK_PATH, README_PATH, self.package_name):
+	def clean(self):
+		for path in (MAINTASK_PATH, README_PATH, DISTDIR):
 			if not path in self.excluded_paths and os.path.exists(path):
 				fckit.remove(path)
 
@@ -454,10 +457,10 @@ def main(args = None):
 			"init": role.init,
 			"show": role.show,
 			"dist": role.dist,
+			"clean": role.clean,
 			"check": lambda: role.check(*(opts["--warnings"].split(",") if opts["--warnings"] else ())),
 			"package": role.package,
 			"publish": lambda: role.publish(opts["--repository"]),
-			"distclean": role.distclean,
 		}
 		for target in opts["TARGETS"]:
 			if target in switch:

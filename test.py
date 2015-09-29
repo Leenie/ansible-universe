@@ -33,7 +33,7 @@ class Test(unittest.TestCase):
 	def test_dist_distclean(self):
 		self._main("dist")
 		map(self._assert_path_state, INITPATHS + DISTPATHS)
-		self._main("distclean")
+		self._main("clean")
 		map(self._assert_path_state, INITPATHS)
 		map(lambda path: self._assert_path_state(path, present = False), DISTPATHS)
 
@@ -42,7 +42,7 @@ class Test(unittest.TestCase):
 
 	def test_package(self):
 		self._main("package")
-		path = os.path.join(self.tmpdir, "%s-0.0.1.tgz" % os.path.basename(self.tmpdir))
+		path = os.path.join(self.tmpdir, universe.DISTDIR, "%s-0.0.1.tgz" % os.path.basename(self.tmpdir))
 		self._assert_path_state(path)
 
 if __name__ == "__main__": unittest.main(verbosity = 2)
