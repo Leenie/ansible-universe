@@ -51,8 +51,10 @@ MAINTASK_PATH = os.path.join(TASKSDIR, "main.yml")
 DISTDIR = "dist"
 
 MANIFESTS = tuple(dict({"name": name}, **__import__(name, globals()).MANIFEST) for name in (
+	"task_has_no_remote_user",
+	"user_is_deprecated",
 	"copy_has_owner",
-	"play_has_name"))
+	"task_has_name"))
 
 class Error(fckit.Error): pass
 
@@ -214,7 +216,7 @@ class Role(object):
 
 			## {{ name }}
 			
-			{{ description or "(no description 	azf	@@	 yet.)" }}
+			{{ description or "(no description yet.)" }}
 
 
 			## Supported Platforms
@@ -259,9 +261,9 @@ class Role(object):
 
 	def _generate_maintask(self):
 		platforms = self.platforms
-		mainplays = []
+		tasks = []
 		if platforms:
-			mainplays.append({
+			tasks.append({
 				"name": "assert the target platform is supported",
 				"fail": {
 					"msg": "unsupported platform -- please contact %s for support" % self.author,
@@ -272,17 +274,17 @@ class Role(object):
 			name = path[len(TASKSDIR) + 1:]
 			fckit.trace("including", name)
 			if name in self.inconditions:
-				mainplays.append({
+				tasks.append({
 					"name": "%s is included" % name,
 					"include": name,
 					"when": self.inconditions[name],
 				})
 			else:
-				mainplays.append({
+				tasks.append({
 					"include": name,
 				})
 		marshall(
-			obj = mainplays,
+			obj = tasks,
 			path = MAINTASK_PATH)
 
 	def dist(self):
@@ -358,10 +360,10 @@ class Role(object):
 					path = os.path.join(dirname, basename)
 					fckit.trace("linting", path)
 					tasks = unmarshall(path, default = []) or []
-					for idx, play in enumerate(tasks):
+					for idx, task in enumerate(tasks):
 						for manifest in manifests:
-							if not manifest["predicate"](play):
-								name = play.get("name", "play#%i" % (idx + 1))
+							if not manifest["predicate"](task):
+								name = task.get("name", "play#%i" % (idx + 1))
 								warning("%s[%s]" % (path, name), manifest["message"])
 
 	def check(self, *flags):
@@ -423,4 +425,3 @@ def main(args = None):
 				raise Error(target, "no such target")
 	except (fckit.Error, Error) as exc:
 		raise SystemExit(fckit.red(exc))
-

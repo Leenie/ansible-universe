@@ -58,8 +58,8 @@ The built-in linter can easily be extended with your own checks:
   * in `__init__.py`, register that new module in the `MANIFESTS` dict
 
 The `MANIFEST` global has three attributes:
-  * `predicate`, the actual check callback, taking a single `play` argument
-  * `message`, the message to display when the check fails
+  * `predicate`, a callback taking a single `task` argument and returning a Boolean
+  * `message`, the message to display when the assertion is violated
 
 
 Appendix: Ansible Best Practices
@@ -182,6 +182,16 @@ And **5** sub-directories are [specified][1] for a playbook:
   * `library/`
   * `filter_plugins/`
   * `roles/`
+
+#### Name task, `-Wtask_has_name`
+
+Make the intent of each task explicit by setting its `name` attribute.
+
+### Do not set a Remote User
+
+It's tempting to always assume your playbooks are run as root and to enforce it by setting the `remote_user`.
+Keep in mind your users might choose another user that has equivalent privileges (e.g. via sudo.)
+If you need an explicit user for a given task, use `sudo_user: <name>` and `sudo: yes`.
 
 
 <!-- references -->
