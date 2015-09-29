@@ -399,7 +399,7 @@ class Role(object):
 					for idx, task in enumerate(tasks):
 						for manifest in manifests:
 							if not manifest["predicate"](task):
-								name = task.get("name", "play#%i" % (idx + 1))
+								name = task.get("name", "task#%i" % (idx + 1))
 								warning("%s[%s]" % (path, name), manifest["message"])
 
 	def check(self, *flags):
