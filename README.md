@@ -189,8 +189,8 @@ Make the intent of each task explicit by setting its `name` attribute.
 
 #### Do not set a Remote User, `-Wtask_has_no_remote_user`
 
-It's tempting to always assume your playbooks are run as root and to enforce it by setting the `remote_user`.
-Keep in mind your users might choose another user that has equivalent privileges (e.g. via sudo.)
+It's tempting to always assume your playbooks/roles are run as root and to enforce it by setting `remote_user`.
+This is a bad idea as your users might choose another user that has equivalent privileges (e.g. via sudo.)
 If you need an explicit user for a given task, use `sudo_user: <name>` and `sudo: yes`.
 
 
