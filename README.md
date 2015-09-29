@@ -136,15 +136,15 @@ The following requirements are all validated by default via the `check` target:
 
 You can switch on only the ones you're interested in with the `-W<flag>,…` option.
 
-#### Metadata, `-Wmetadata`
+#### Manifest, `-Wmanifest`
 
-[Make sure your role metadata is up-to-date][8] so that it can be published later:
+Make sure your role manifest contains the [required][8] information:
 
-  * name
-  * version (extended attribute),
-  * authors
-  * description
-  * and the supported platforms
+  * Name
+  * Version (extended attribute),
+  * Authors
+  * Description
+  * Supported platforms
 
 #### Documentation, `-Wreadme`
 

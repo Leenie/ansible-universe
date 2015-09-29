@@ -17,15 +17,16 @@ Options:
   -h, --help                  display full help text
   --no-color                  disable colored output
   -a, --all                   with clean, remove distdir
+  -E                          convert warning to error
 
 TARGET:
-  * init         instantiate role template
-  * show         show role information
-  * dist         generate ansible distributable role files
-  * check        include role in a dummy playbook and check syntax
-  * package      package role
-  * publish -r…  publish role to a web repository
-  * distclean    delete generated files
+  * init       instantiate role template
+  * show       show role information
+  * dist       generate ansible distributable role files
+  * check      include role in a dummy playbook and check syntax
+  * package    package role
+  * publish    publish role to a web repository
+  * distclean  delete generated files
 
 Example:
   $ mkdir foo
@@ -52,7 +53,7 @@ DISTDIR = "dist"
 
 MANIFESTS = tuple(dict({"name": name}, **__import__(name, globals()).MANIFEST) for name in (
 	"task_has_no_remote_user",
-	"user_is_deprecated",
+	"template_has_owner",
 	"copy_has_owner",
 	"task_has_name"))
 
@@ -297,6 +298,18 @@ class Role(object):
 			else:
 				fckit.trace(path, "in excluded path, ignored")
 
+	def check_manifest(self):
+		manifest = self.manifest
+		for key in (
+			"version",
+			"/author",
+			"/license",
+			"/platforms",
+			"/description"):
+			root = manifest["galaxy_info"] if key.startswith("/") else manifest
+			if not os.path.basename(key) in root or not root[os.path.basename(key)]:
+				warning(key, "missing manifest attribute")
+
 	def check_syntax(self):
 		"generate a playbook using the role and syntax-check it"
 		tmpdir = fckit.mkdir()
@@ -334,6 +347,13 @@ class Role(object):
 			fckit.chdir(cwd)
 			fckit.remove(tmpdir)
 
+	def check_readme(self):
+		with open(README_PATH, "r") as fp:
+			text = fp.read()
+			for key in self.variables:
+				if not key in text:
+					warning(key, "variable not documented in README")
+
 	def check_naming(self):
 		for key in self.variables:
 			if not key.startswith(self.prefix):
@@ -367,8 +387,12 @@ class Role(object):
 								warning("%s[%s]" % (path, name), manifest["message"])
 
 	def check(self, *flags):
+		if not flags or "manifest" in flags:
+			self.check_manifest()
 		if not flags or "syntax" in flags:
 			self.check_syntax()
+		if not flags or "readme" in flags:
+			self.check_readme()
 		if not flags or "naming" in flags:
 			self.check_naming()
 		if not flags or "layout" in flags:
@@ -406,6 +430,10 @@ def main(args = None):
 			fckit.disable_colors()
 		if opts["--verbose"]:
 			fckit.enable_tracing()
+		if opts["-E"]:
+			def warning(*strings):
+				raise Error(": ".join(strings))
+			globals()["warning"] = warning
 		role = Role(
 			excluded_paths = (opts["--exclude"] or "").split(","),
 			directory = opts["--directory"])
