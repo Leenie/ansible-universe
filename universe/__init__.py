@@ -86,7 +86,7 @@ def marshall(obj, path, extname = None):
 		overwrite = True)
 
 def warning(*strings):
-	sys.stderr.write(fckit.yellow("warning! %s\n") % ": ".join(strings))
+	sys.stderr.write(fckit.magenta("WARNING! %s\n") % ": ".join(strings).encode("utf-8"))
 
 class Role(object):
 
@@ -318,10 +318,10 @@ class Role(object):
 		manifest = self.manifest
 		for key in (
 			"version",
-			"/author",
-			"/license",
-			"/platforms",
-			"/description"):
+			"galaxy_info/author",
+			"galaxy_info/license",
+			"galaxy_info/platforms",
+			"galaxy_info/description"):
 			root = manifest["galaxy_info"] if key.startswith("/") else manifest
 			if not os.path.basename(key) in root or not root[os.path.basename(key)]:
 				warning(key, "missing manifest attribute")
