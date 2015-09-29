@@ -110,8 +110,10 @@ class Role(object):
 	manifest = property(_get_manifest, _set_manifest)
 
 	def _get_version(self):
-		"return role version"
-		return self.manifest["version"]
+		try:
+			return self.manifest["version"]
+		except KeyError:
+			raise Error("missing version attribute in manifest")
 
 	def _set_version(self, string):
 		self.manifest = dict(self.manifest, version = string)
@@ -119,9 +121,18 @@ class Role(object):
 	version = property(_get_version, _set_version)
 
 	@property
+	def galaxy_info(self):
+		try:
+			return self.manifest["galaxy_info"]
+		except KeyError:
+			raise Error("missing galaxy_info attribute in manifest")
+
+	@property
 	def author(self):
-		"return role author"
-		return self.manifest["galaxy_info"]["author"]
+		try:
+			return self.galaxy_info["author"]
+		except KeyError:
+			raise Error("missing author attribute in manifest")
 
 	@property
 	def prefix(self):
@@ -131,7 +142,10 @@ class Role(object):
 	@property
 	def platforms(self):
 		"return the list of supported platforms {'name':..., 'versions':...}"
-		return self.manifest["galaxy_info"].get("platforms", ())
+		try:
+			return self.galaxy_info["platforms"]
+		except:
+			raise Error("missing platforms attribute in manifest")
 
 	@property
 	def variables(self):
@@ -165,13 +179,15 @@ class Role(object):
 
 	@property
 	def description(self):
-		"return role description"
-		return self.manifest["galaxy_info"]["description"]
+		try:
+			return self.galaxy_info["description"]
+		except KeyError:
+			raise Error("missing description attribute in manifest")
 
 	@property
 	def dependencies(self):
 		"return list of role dependencies"
-		return self.manifest["dependencies"]
+		return self.manifest.get("dependencies", ())
 
 	@property
 	def inconditions(self):
