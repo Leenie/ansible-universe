@@ -422,7 +422,7 @@ class Role(object):
 		return "%s-%s.tgz" % (self.name, self.version)
 
 	def package(self):
-		fckit.check_call("tar", "czf", self.package_name, "--exclude", self.package_name, ".")
+		fckit.check_call("tar", "czf", self.package_name, "--exclude", "./%s" % self.package_name, ".")
 
 	def publish(self, repository_url):
 		if not repository_url:
