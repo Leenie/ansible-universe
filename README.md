@@ -7,13 +7,13 @@
   * Packaging & publishing into private web repositories
 
 The following [build targets][7] are available:
-  * `init` instantiate role template
-  * `show` show role information
-  * `dist` generate ansible distributable role files
-  * `check` include role in a dummy playbook and check syntax
-  * `package` package role
-  * `publish -r…` publish role to a web repository
-  * `distclean` delete generated files
+  * `init`     instantiate role template
+  * `show`     show role information
+  * `dist`     generate ansible distributable role files
+  * `clean`    delete all generated files
+  * `check`    include role in a dummy playbook and check syntax
+  * `package`  package role
+  * `publish`  publish role to a web repository
 
 Example:
 
@@ -203,5 +203,5 @@ If you need an explicit user for a given task, use `sudo_user: <name>` and `sudo
 [4]: https://www.python.org/dev/peps/pep-0440/#version-specifiers
 [5]: https://en.wikipedia.org/wiki/Principle_of_least_astonishment
 [6]: https://en.wikipedia.org/wiki/Undefined_behavior
-[7]: https://github.com/fclaerho/buildstack#glossar
+[7]: https://github.com/fclaerho/buildstack#glossary
 [8]: https://galaxy.ansible.com/intro#share
