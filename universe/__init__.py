@@ -13,6 +13,7 @@ Options:
   -C PATH, --directory PATH   set working directory
   -x PATHS, --exclude PATHS   comma-separated list of paths to ignore
   -r URL, --repository URL    set HTTP repository
+  -m, --metadata              show role metadata
   -v, --verbose               output executed commands
   -h, --help                  display full help text
   --no-color                  disable colored output
@@ -20,7 +21,6 @@ Options:
 
 TARGET:
   * init     instantiate role template
-  * show     show role information
   * dist     generate ansible distributable role files
   * clean    delete all generated files
   * check    include role in a dummy playbook and check syntax
@@ -88,9 +88,9 @@ def warning(*strings):
 	sys.stderr.write(fckit.magenta("WARNING! %s\n") % ": ".join(strings).encode("utf-8"))
 
 class Role(object):
+	"this object allows to fetch role information from various files"
 
-	def __init__(self, excluded_paths = None, directory = None):
-		self.excluded_paths = excluded_paths or () # user files not to be overwritten
+	def __init__(self, directory = None):
 		if directory:
 			fckit.chdir(directory)
 		self.name = os.path.basename(os.getcwd())
@@ -192,39 +192,6 @@ class Role(object):
 	def inconditions(self):
 		"return dict mapping tasks/ playbooks to include conditions"
 		return self.manifest.get("inconditions", {})
-
-	def init(self):
-		fckit.mkdir(os.path.dirname(MAINTASK_PATH))
-		fckit.mkdir(os.path.dirname(META_PATH))
-		marshall(
-			path = META_PATH,
-			obj = {
-				"dependencies": [],
-				"inconditions": {},
-				"galaxy_info": {
-					"min_ansible_version": "1.8.4",
-					"description": None,
-					"platforms": [],
-					"license": "MIT",
-					"author": None,
-				},
-				"variables": {},
-				"version": "0.0.1",
-			}
-		)
-
-	def show(self):
-		print yaml.dump(
-			data = {
-				"name": self.name,
-				"author": self.author,
-				"version": self.version,
-				"platforms": self.platforms,
-				"variables": self.variables, 
-				"description": self.description
-			},
-			explicit_start = True,
-			default_flow_style = False)
 
 	def _generate_readme(self):
 		template = """
@@ -362,21 +329,58 @@ class Role(object):
 			fckit.chdir(cwd)
 			fckit.remove(tmpdir)
 
-	def check_readme(self):
+###################
+# build callbacks #
+###################
+
+def _init():
+	fckit.mkdir(os.path.dirname(MAINTASK_PATH))
+	fckit.mkdir(os.path.dirname(META_PATH))
+	marshall(
+		path = META_PATH,
+		obj = {
+			"dependencies": [],
+			"inconditions": {},
+			"galaxy_info": {
+				"min_ansible_version": "1.8.4",
+				"description": None,
+				"platforms": [],
+				"license": "MIT",
+				"author": None,
+			},
+			"variables": {},
+			"version": "0.0.1",
+		}
+	)
+
+def _clean(excluded_paths):
+	for path in (MAINTASK_PATH, README_PATH, DISTDIR):
+		if not path in excluded_paths and os.path.exists(path):
+			fckit.remove(path)
+
+def _check(variables, warning_flags):
+	# manifest
+	if not warning_flags or "manifest" in warning_flags:
+		_check_manifest()
+	# syntax
+	if not warning_flags or "syntax" in warning_flags:
+		_check_syntax()
+	# readme
+	if not warning_flags or "readme" in warning_flags:
 		if not os.path.exists(README_PATH):
 			raise Error(README_PATH, "missing documentation")
 		with open(README_PATH, "r") as fp:
 			text = fp.read()
-			for key in self.variables:
+			for key in variables:
 				if not key in text:
 					warning(key, "variable not documented in %s" % README_PATH)
-
-	def check_naming(self):
-		for key in self.variables:
+	# naming
+	if not warning_flags or "naming" in warning_flags:
+		for key in role.variables:
 			if not key.startswith(self.prefix):
 				warning(key, "variable not properly prefixed, expected '%s' prefix" % self.prefix)
-
-	def check_layout(self):
+	# layout
+	if not warning_flags or "layout" in warning_flags:
 		for path in os.listdir("."):
 			if os.path.isdir(path) and not path.startswith(".") and path not in (
 				"defaults",
@@ -388,8 +392,9 @@ class Role(object):
 				"vars",
 				"library"):
 				warning(path, "undefined role sub-directory")
-
-	def lint(self, manifests):
+	# linter
+	manifests = tuple(manifest for manifest in MANIFESTS if not warning_flags or manifest["name"] in warning_flags)
+	if manifests:
 		for dirname, _, basenames in os.walk(TASKSDIR):
 			for basename in basenames:
 				_, extname = os.path.splitext(basename)
@@ -403,39 +408,17 @@ class Role(object):
 								name = task.get("name", "task#%i" % (idx + 1))
 								warning("%s[%s]" % (path, name), manifest["message"])
 
-	def check(self, *flags):
-		if not flags or "manifest" in flags:
-			self.check_manifest()
-		if not flags or "syntax" in flags:
-			self.check_syntax()
-		if not flags or "readme" in flags:
-			self.check_readme()
-		if not flags or "naming" in flags:
-			self.check_naming()
-		if not flags or "layout" in flags:
-			self.check_layout()
-		manifests = tuple(manifest for manifest in MANIFESTS if not flags or manifest["name"] in flags)
-		if manifests:
-			self.lint(manifests)
+def _package(path):
+	if not os.path.exists(DISTDIR):
+		fckit.mkdir(DISTDIR)
+	fckit.check_call("tar", "czf", path, "--exclude", DISTDIR, ".")
 
-	@property
-	def package_path(self):
-		return os.path.join(DISTDIR, "%s-%s.tgz" % (self.name, self.version))
+def _publish(package_path, repository_url):
+	fckit.check_call("curl", "-k", "-T", package_path, repository_url)
 
-	def package(self):
-		if not os.path.exists(DISTDIR):
-			fckit.mkdir(DISTDIR)
-		fckit.check_call("tar", "czf", self.package_path, "--exclude", DISTDIR, ".")
-
-	def publish(self, repository_url):
-		if not repository_url:
-			raise Error("no repository")
-		fckit.check_call("curl", "-k", "-T", self.package_path, repository_url)
-
-	def clean(self):
-		for path in (MAINTASK_PATH, README_PATH, DISTDIR):
-			if not path in self.excluded_paths and os.path.exists(path):
-				fckit.remove(path)
+##############
+# entrypoint #
+##############
 
 def main(args = None):
 	opts = docopt.docopt(
@@ -450,21 +433,55 @@ def main(args = None):
 			def warning(*strings):
 				raise Error(": ".join(strings))
 			globals()["warning"] = warning
-		role = Role(
-			excluded_paths = (opts["--exclude"] or "").split(","),
-			directory = opts["--directory"])
+		excluded_paths = () if not opts["--exclude"] else opts["--exclude"].split(",") # user files not to be overwritten
+		warning_flags = opts["--warnings"].split(",") if opts["--warnings"] else ()
+		role = Role(opts["--directory"])
+		if opts["--metadata"]:
+			print yaml.dump(
+				data = {
+					"name": role.name,
+					"author": role.author,
+					"version": role.version,
+					"platforms": role.platforms,
+					"variables": role.variables,
+					"description": role.description,
+				},
+				explicit_start = True,
+				default_flow_style = False)
+		check_tgt = fckit.BuildTarget(
+			path = "check",
+			phony = True,
+			callback = lambda sources: _check(
+				variables = role.variables,
+				warning_flags = warning_flags))
+		package_tgt = BuildTarget(
+			path = os.path.join(DISTDIR, "%s-%s.tgz" % (role.name, role.version)),
+			sources = (check_tgt,),
+			callback = lambda path, sources: _package(path))
 		switch = {
-			"init": role.init,
-			"show": role.show,
-			"dist": role.dist,
-			"clean": role.clean,
-			"check": lambda: role.check(*(opts["--warnings"].split(",") if opts["--warnings"] else ())),
-			"package": role.package,
-			"publish": lambda: role.publish(opts["--repository"]),
+			"init": fckit.BuildTarget(
+				path = "init",
+				phony = True,
+				callback = lambda sources: _init()),
+			"dist": fckit.BuildTarget(
+				path = "dist",
+				phony = True,
+				callback = role.dist),
+			"clean": fckit.BuildTarget(
+				path = "clean",
+				phony = True,
+				callback = lambda sources: _clean(excluded_paths)),
+			"check": check_tgt,
+			"package": package_tgt,
+			"publish": fckit.BuildTarget(
+				path = "publish",
+				phony = True,
+				sources = (package_tgt,),
+				callback = lambda sources: _publish(sources[0], opts["--repository"])),
 		}
 		for target in opts["TARGETS"]:
 			if target in switch:
-				switch[target]()
+				switch[target].build()
 			else:
 				raise Error(target, "no such target")
 	except (fckit.Error, Error) as exc:
