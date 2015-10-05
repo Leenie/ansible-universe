@@ -67,7 +67,6 @@ def marshall(obj, path, extname = None):
 	"custom marshaller with yaml support"
 	def _marshall_yaml(obj, fp):
 		yaml.dump(obj, fp, explicit_start = True, default_flow_style = False)
-	fckit.trace("writing", path)
 	fckit.marshall(
 		obj = obj,
 		path = path,
