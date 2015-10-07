@@ -27,10 +27,8 @@ Example:
 	$ ansible-universe -C foo init check
 
 
-User Guide
-----------
-
-### Installation
+Installation
+------------
 
   $ pip install --user ansible-universe
 
@@ -38,15 +36,15 @@ To uninstall:
 
   $ pip uninstall ansible-universe
 
-### Build Manifest
+
+Workflow
+--------
 
 **Ansible-universe** uses the ansible-galaxy manifest (`meta/main.yml`) with extra attributes:
   * `prefix`, variable prefix, defaults to rolename
   * `version`, defaults to 0.0.1
   * `variables`, maps names to descriptions
   * `inconditions`, maps tasks filename to include conditions
-
-### Distribution Files
 
 On `dist`, two files are generated:
   * `tasks/main.yml`, performing the platform check and including any other YAML file in `tasks/`.
