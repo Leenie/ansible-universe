@@ -15,7 +15,7 @@ The following [build targets][7] are supported:
   * `package`  package role
   * `publish`  publish role to a web repository
 
-The following [Lifecycles][7] are supported:
+The following [lifecycles][7] are supported:
   * **`init`**
   * **`show`**
   * **`clean`**
