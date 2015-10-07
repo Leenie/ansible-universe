@@ -26,7 +26,7 @@ Example:
 	$ mkdir foo
 	$ ansible-universe -C foo init check
 
-**Ansible-universe** uses the ansible-galaxy manifest (`meta/main.yml`) with extra attributes:
+**Ansible-universe** uses the ansible-galaxy [build manifest][7] (`meta/main.yml`) with extra attributes:
   * `prefix`, variable prefix, defaults to rolename
   * `version`, defaults to 0.0.1
   * `variables`, maps names to descriptions
