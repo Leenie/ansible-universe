@@ -41,11 +41,11 @@ On `dist`, two files are generated:
 Installation
 ------------
 
-  $ pip install --user ansible-universe
+	$ pip install --user ansible-universe
 
 To uninstall:
 
-  $ pip uninstall ansible-universe
+	$ pip uninstall ansible-universe
 
 
 Development Guide
