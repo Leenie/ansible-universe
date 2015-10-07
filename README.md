@@ -27,8 +27,18 @@ Example:
 	$ ansible-universe -C foo init check
 
 
-Build Manifest
---------------
+User Guide
+----------
+
+### Installation
+
+  $ pip install --user ansible-universe
+
+To uninstall:
+
+  $ pip uninstall ansible-universe
+
+### Build Manifest
 
 **Ansible-universe** uses the ansible-galaxy manifest (`meta/main.yml`) with extra attributes:
   * `prefix`, variable prefix, defaults to rolename
@@ -36,23 +46,12 @@ Build Manifest
   * `variables`, maps names to descriptions
   * `inconditions`, maps tasks filename to include conditions
 
-Distribution Files
-------------------
+### Distribution Files
 
 On `dist`, two files are generated:
   * `tasks/main.yml`, performing the platform check and including any other YAML file in `tasks/`.
     Conditions to inclusions can be specified via the `inconditions` attribute of the manifest.
   * `README.md`, gathering the role description, supported platforms and data on variables.
-
-
-Installation
-------------
-
-	$ pip install --user ansible-universe
-
-To uninstall:
-
-	$ pip uninstall ansible-universe
 
 
 Development Guide
@@ -67,8 +66,8 @@ The `MANIFEST` global has three attributes:
   * `message`, the message to display when the assertion is violated
 
 
-Appendix: Ansible Best Practices
---------------------------------
+Ansible Best Practices
+----------------------
 
 ### GENERAL DESIGN RULES
 
