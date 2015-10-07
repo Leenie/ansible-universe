@@ -26,20 +26,6 @@ Example:
 	$ mkdir foo
 	$ ansible-universe -C foo init check
 
-
-Installation
-------------
-
-  $ pip install --user ansible-universe
-
-To uninstall:
-
-  $ pip uninstall ansible-universe
-
-
-Workflow
---------
-
 **Ansible-universe** uses the ansible-galaxy manifest (`meta/main.yml`) with extra attributes:
   * `prefix`, variable prefix, defaults to rolename
   * `version`, defaults to 0.0.1
@@ -50,6 +36,16 @@ On `dist`, two files are generated:
   * `tasks/main.yml`, performing the platform check and including any other YAML file in `tasks/`.
     Conditions to inclusions can be specified via the `inconditions` attribute of the manifest.
   * `README.md`, gathering the role description, supported platforms and data on variables.
+
+
+Installation
+------------
+
+  $ pip install --user ansible-universe
+
+To uninstall:
+
+  $ pip uninstall ansible-universe
 
 
 Development Guide
