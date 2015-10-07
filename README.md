@@ -36,6 +36,9 @@ Build Manifest
   * `variables`, maps names to descriptions
   * `inconditions`, maps tasks filename to include conditions
 
+Distribution Files
+------------------
+
 On `dist`, two files are generated:
   * `tasks/main.yml`, performing the platform check and including any other YAML file in `tasks/`.
     Conditions to inclusions can be specified via the `inconditions` attribute of the manifest.
@@ -46,10 +49,6 @@ Installation
 ------------
 
 	$ pip install --user ansible-universe
-
-or, if the PyPI repository is not available:
-
-	$ pip install --user git+https://github.com/fclaerho/ansible-universe.git
 
 To uninstall:
 
