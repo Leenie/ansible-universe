@@ -6,7 +6,7 @@
   * Role linter implementing best practices
   * Packaging & publishing into private web repositories
 
-The following [build targets][7] are available:
+The following [build targets][7] are supported:
   * `init`     instantiate role template
   * `show`     show role information
   * `dist`     generate ansible distributable role files
@@ -15,10 +15,16 @@ The following [build targets][7] are available:
   * `package`  package role
   * `publish`  publish role to a web repository
 
+The following [Lifecycles][7] are supported:
+  * **`init`**
+  * **`show`**
+  * **`clean`**
+  * **`publish`** > `package` > `check` > `dist`
+
 Example:
 
 	$ mkdir foo
-	$ ansible-universe -C foo init dist check
+	$ ansible-universe -C foo init check
 
 
 Build Manifest
