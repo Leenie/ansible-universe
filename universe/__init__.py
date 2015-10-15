@@ -14,14 +14,14 @@ Options:
   -r URL, --repository URL    set HTTP repository
   -v, --verbose               output executed commands
   -h, --help                  display full help text
+  -x GLOBS, --exclude GLOBS   file patterns to exclude [default: .*]
   --no-color                  disable colored output
-  -E                          convert warnings to errors
 
 TARGET:
   * show     show role metadata
   * init     instantiate role template
   * dist     generate ansible distributable role files
-  * clean    delete all generated files
+  * clean    delete non-distributable role files
   * check    include role in a dummy playbook and check syntax
   * package  package role
   * publish  publish role to a web repository
@@ -43,7 +43,7 @@ Universe uses the ansible-galaxy manifest (meta/main.yml) with extra attributes:
   * include_when  maps tasks filename to include conditions
 """
 
-import textwrap, glob, sys, os
+import textwrap, fnmatch, glob, sys, os
 
 import docopt, jinja2, fckit, yaml # 3rd-party
 
@@ -77,16 +77,16 @@ def marshall(obj, path, extname = None):
 		overwrite = True)
 
 class Role(object):
+	"helper object to parse role properties"
 
 	def __init__(self, path = None):
-		assert os.path.isdir(path), "not a directory"
-		self.name = os.path.basename(os.path.abspath(path))
-		self.dist_path = os.path.join(path, "dist")
-		self.defaults_path = os.path.join(path, "defaults", "main.yml")
-		self.readme_path = os.path.join(path, "README.md")
-		self.meta_path = os.path.join(path, "meta", "main.yml")
-		self.vars_path = os.path.join(path, "vars", "main.yml")
-		self.maintask_path = os.path.join(path, "tasks", "main.yml")
+		self.path = path
+		self.name = os.path.basename(self.path)
+		self.defaults_path = os.path.join(self.path, "defaults", "main.yml")
+		self.readme_path = os.path.join(self.path, "README.md")
+		self.meta_path = os.path.join(self.path, "meta", "main.yml")
+		self.vars_path = os.path.join(self.path, "vars", "main.yml")
+		self.tasks_path = os.path.join(self.path, "tasks", "main.yml")
 
 	@property
 	def manifest(self):
@@ -101,10 +101,6 @@ class Role(object):
 			return self.manifest["version"]
 		except KeyError:
 			raise Error("missing 'version' attribute in manifest")
-
-	@property
-	def package_path(self):
-		return os.path.join(self.dist_path, "%s-%s.tgz" % (self.name, self.version))
 
 	@property
 	def galaxy_info(self):
@@ -180,9 +176,9 @@ class Role(object):
 		"return dict mapping tasks/ playbooks to include conditions"
 		return self.manifest.get("include_when", {})
 
-###################
-# build callbacks #
-###################
+#################
+# build targets #
+#################
 
 def show(role):
 	print yaml.dump(
@@ -197,9 +193,9 @@ def show(role):
 		explicit_start = True,
 		default_flow_style = False)
 
-def write_manifest(path):
+def init_manifest(role):
 	marshall(
-		path = path,
+		path = role.meta_path,
 		obj = {
 			"dependencies": [],
 			"inconditions": {},
@@ -215,18 +211,12 @@ def write_manifest(path):
 		}
 	)
 
-def clean(role):
-	path = os.path.dirname(role.package_path)
-	if os.path.exists(path):
-		fckit.remove(path)
-
-def write_readme(role):
+def generate_readme(role):
+	print "generating %s" % role.readme_path
 	template = """
 		<!-- THIS IS A GENERATED FILE, DO NOT EDIT -->
 
-		## {{ name }}
-
-		{{ description or "(no description yet.)" }}
+		{{ description or "(argh, no description yet.)" }}
 
 
 		## Supported Platforms
@@ -240,7 +230,7 @@ def write_readme(role):
 
 		| Name | Value | Constant? | Description |
 		|------|-------|-----------|-------------|
-		{% for k, v in variables.items() %}| {{ k }} | {{ v.value }} | {{ v.constant }} | {{ v.description }} |
+		{% for key in variables.keys()|sort %}| {{ key }} | {{ variables[key].value }} | {{ variables[key].constant }} | {{ variables[key].description }} |
 		{% endfor %}
 
 		## Usage
@@ -269,26 +259,26 @@ def write_readme(role):
 		path = role.readme_path,
 		extname = ".txt")
 
-def write_maintask(role):
-	raise NotImplementedError
+def generate_maintask(role):
+	print "generating %s" % role.tasks_path
 	platforms = role.platforms
 	tasks = []
 	if platforms:
 		tasks.append({
 			"name": "assert the target platform is supported",
 			"fail": {
-				"msg": "unsupported platform -- please contact %s for support" % self.author,
+				"msg": "unsupported platform -- please contact %s for support" % role.author,
 			},
 			"when": "ansible_distribution not in %s" % list(platform["name"] for platform in platforms),
 		})
-	for path in filter(lambda path: path != role.MAINTASK_PATH, glob.glob(os.path.join(role.TASKSDIR, "*.yml"))):
-		name = path[len(TASKSDIR) + 1:]
+	for path in glob.glob(os.path.join(os.path.dirname(role.tasks_path), "*.yml")):
+		name = os.path.basename(path)
 		fckit.trace("including", name)
-		if name in self.inconditions:
+		if name in role.include_when:
 			tasks.append({
 				"name": "%s is included" % name,
 				"include": name,
-				"when": self.inconditions[name],
+				"when": role.include_when[name],
 			})
 		else:
 			tasks.append({
@@ -296,9 +286,15 @@ def write_maintask(role):
 			})
 	marshall(
 		obj = tasks,
-		path = role.MAINTASK_PATH)
+		path = role.tasks_path)
 
-def print_warning(*strings):
+def clean(targets, build_path):
+	for tgt in targets:
+		tgt.clean(purge = True)
+	if os.path.exists(build_path):
+		fckit.remove(build_path)
+
+def warning(*strings):
 	sys.stderr.write(fckit.magenta("WARNING! %s\n") % ": ".join(strings).encode("utf-8"))
 
 def check(role, warning_flags):
@@ -314,7 +310,7 @@ def check(role, warning_flags):
 							variable = variable,
 							role = role)
 					except AssertionError as exc:
-						print_warning(variable, "%s" % exc)
+						warning(variable, "%s" % exc)
 		for dirname, _, basenames in os.walk(TASKSDIR):
 			for basename in basenames:
 				_, extname = os.path.splitext(basename)
@@ -330,12 +326,10 @@ def check(role, warning_flags):
 										role = role)
 								except AssertionError as exc:
 									name = task.get("name", "task#%i" % (idx + 1))
-									print_warning("%s[%s]" % (path, name), "%s" % exc)
+									warning("%s[%s]" % (path, name), "%s" % exc)
 
-def package(role):
-	if not os.path.exists(role.dist_path):
-		fckit.mkdir(role.dist_path)
-	fckit.check_call("tar", "czf", role.package_path, "--exclude", role.dist_path, ".")
+def package(path, role):
+	fckit.check_call("tar", "czf", path, "--exclude", os.path.dirname(path), role.path)
 
 def publish(path, url):
 	fckit.check_call("curl", "-k", "-T", path, url)
@@ -343,6 +337,86 @@ def publish(path, url):
 ##############
 # entrypoint #
 ##############
+
+def get_source_targets(role, exclude):
+	targets = {}
+	# existing files:
+	for root, dirnames, filenames in os.walk(role.path):
+		excluded = tuple(
+			dirname
+			for dirname in dirnames
+			for pattern in exclude
+			if fnmatch.fnmatch(dirname, pattern))
+		for dirname in excluded:
+			dirnames.remove(dirname)
+		if root != role.path:
+			fckit.trace("indexing %s" % root)
+			targets[root] = fckit.BuildTarget(
+				path = root,
+				on_build = None, # cannot build source file
+				on_digest = lambda path: None) # no digest for directories
+		for filename in filenames:
+			if not any(fnmatch.fnmatch(filename, pattern) for pattern in exclude):
+				path = os.path.join(root, filename)
+				fckit.trace("indexing %s" % path)
+				targets[path] = fckit.BuildTarget(
+					path = path,
+					on_build = None) # cannot build source file
+	# files to generate if missing:
+	def is_in_defaults_path(key):
+		return targets[key].path.startswith(os.path.dirname(role.defaults_path))
+	def is_in_vars_path(key):
+		return targets[key].path.startswith(os.path.dirname(role.vars_path))
+	def is_in_tasks_path(key):
+		return targets[key].path.startswith(os.path.dirname(role.tasks_path))
+	targets[role.readme_path] = fckit.BuildTarget(
+		path = role.readme_path,
+		sources = [targets[key] for key in targets\
+			if is_in_defaults_path(key) or is_in_vars_path(key) or key == role.meta_path],
+		on_build = lambda tgtpath, srcpaths: generate_readme(role))
+	targets[role.tasks_path] = fckit.BuildTarget(
+		path = role.tasks_path,
+		sources = [targets[key] for key in targets\
+			if (is_in_tasks_path(key) and key != role.tasks_path) or key == role.meta_path],
+		on_build = lambda tgtpath, srcpaths: generate_maintask(role))
+	return targets.values()
+
+def get_target(key, role, exclude, _cache = {}):
+	build_path = os.path.join(role.path, ".build")
+	if not key in _cache:
+		if key == "show":
+			_cache[key] = fckit.BuildTarget(
+				path = key,
+				phony = True,
+				on_build = lambda srcpaths: show(role))
+		elif key == "init":
+			_cache[key] = fckit.BuildTarget(
+				path = role.meta_path,
+				on_build = lambda tgtpath, srcpaths: init_manifest(role))
+		elif key == "dist":
+			_cache[key] = fckit.BuildTarget(
+				path = os.path.join(build_path, "dist"),
+				sources = get_source_targets(
+					role = role,
+					exclude = exclude),
+				on_build = True)
+		elif key == "clean":
+			_cache[key] = fckit.BuildTarget(
+				path = key,
+				phony = True,
+				on_build = lambda srcpaths: clean(
+					targets = [get_target(
+						key = "dist",
+						role = role,
+						exclude = exclude)],
+					build_path = build_path))
+		elif key == "package":
+			_cache[key] = fckit.BuildTarget(
+				path = os.path.join(build_path, "%s-%s.tgz" % (role.name, role.version)),
+				on_build = lambda tgtpath, srcpaths: package(tgtpath, role))
+		else:
+			raise Error(key, "unknown target")
+	return _cache[key]
 
 def main(args = None):
 	opts = docopt.docopt(
@@ -353,77 +427,12 @@ def main(args = None):
 			fckit.disable_colors()
 		if opts["--verbose"]:
 			fckit.enable_tracing()
-		if opts["-E"]:
-			def warning(*strings):
-				raise Error(": ".join(strings))
-			globals()["warning"] = warning
-		warning_flags = opts["--warnings"].split(",") if opts["--warnings"] else ()
 		role = Role(opts["--directory"])
-		##################
-		# show lifecycle #
-		##################
-		show_phony_tgt = fckit.BuildTarget(
-			path = "show",
-			phony = True,
-			callback = lambda sources: show(role))
-		##################
-		# init lifecycle #
-		##################
-		manifest_file_tgt = fckit.BuildTarget(
-			path = role.meta_path,
-			callback = lambda path, sources: write_manifest(path))
-		###################
-		# clean lifecycle #
-		###################
-		clean_phony_tgt = fckit.BuildTarget(
-			path = "clean",
-			phony = True,
-			callback = lambda sources: clean(role))
-		#####################
-		# publish lifecycle #
-		#####################
-		readme_file_tgt = fckit.BuildTarget(
-			path = role.readme_path,
-			sources = (manifest_file_tgt,),
-			callback = lambda path, sources: write_readme(role))
-		maintask_file_tgt = fckit.BuildTarget(
-			path = role.maintask_path,
-			sources = (manifest_file_tgt,),
-			callback = lambda path, sources: write_maintask(role))
-		dist_phony_tgt = fckit.BuildTarget(
-			path = "dist",
-			phony = True,
-			sources = (readme_file_tgt, maintask_file_tgt),
-			callback = lambda sources: None)
-		check_phony_tgt = fckit.BuildTarget(
-			path = "check",
-			phony = True,
-			sources = (dist_phony_tgt,),
-			callback = lambda sources: check(
+		for key in opts["TARGETS"]:
+			fckit.trace("at %s" % key)
+			get_target(
+				key = key,
 				role = role,
-				warning_flags = warning_flags))
-		package_file_tgt = fckit.BuildTarget(
-			path = role.package_path,
-			callback = lambda path, sources: package(role))
-		publish_phony_tgt = fckit.BuildTarget(
-			path = "publish",
-			phony = True,
-			sources = (package_file_tgt,),
-			callback = lambda sources: publish(sources[0], opts["--repository"]))
-		switch = {
-			"show": show_phony_tgt,
-			"init": manifest_file_tgt,
-			"dist": dist_phony_tgt,
-			"clean": clean_phony_tgt,
-			"check": check_phony_tgt,
-			"package": package_file_tgt,
-			"publish": publish_phony_tgt,
-		}
-		for target in opts["TARGETS"]:
-			if target in switch:
-				fckit.trace("at", target)
-				switch[target].build()
-			else:
-				raise Error(target, "no such target")
+				exclude = opts["--exclude"].split(",")).build()
 	except fckit.Error as exc:
 		raise SystemExit(fckit.red(exc))

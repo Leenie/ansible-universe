@@ -19,7 +19,7 @@ The following [lifecycles][7] are supported:
   * **`init`**
   * **`show`**
   * **`clean`**
-  * **`publish`** > `package` > `check` > `dist`
+  * **`publish`** < `package` < `check` < `dist`
 
 Example:
 
