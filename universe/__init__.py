@@ -59,9 +59,7 @@ def unmarshall(path, default = None):
 	return fckit.unmarshall(
 		path = path,
 		default = default,
-		helpers = {
-			".yml": _unmarshall_yaml,
-		})
+		helpers = {".yml": _unmarshall_yaml})
 
 def marshall(obj, path, extname = None):
 	"custom marshaller with yaml support"
@@ -71,9 +69,7 @@ def marshall(obj, path, extname = None):
 		obj = obj,
 		path = path,
 		extname = extname,
-		helpers = {
-			".yml": _marshall_yaml,
-		},
+		helpers = {".yml": _marshall_yaml},
 		overwrite = True)
 
 class Role(object):
@@ -81,7 +77,7 @@ class Role(object):
 
 	def __init__(self, path = None):
 		self.path = path
-		self.name = os.path.basename(self.path)
+		self.name = os.path.basename(os.path.abspath(self.path))
 		self.defaults_path = os.path.join(self.path, "defaults", "main.yml")
 		self.readme_path = os.path.join(self.path, "README.md")
 		self.meta_path = os.path.join(self.path, "meta", "main.yml")
@@ -299,7 +295,7 @@ def warning(*strings):
 
 def check(role, warning_flags):
 	manifests = filter(
-		lambda m: not warning_flags or m.get("flag", m["name"]) in warning_flags,
+		lambda manifest: not warning_flags or manifest.get("flag", manifest["name"]) in warning_flags,
 		MANIFESTS)
 	if manifests:
 		for variable in role.variables:
@@ -329,6 +325,7 @@ def check(role, warning_flags):
 									warning("%s[%s]" % (path, name), "%s" % exc)
 
 def package(path, role):
+	print "generating", path
 	fckit.check_call("tar", "czf", path, "--exclude", os.path.dirname(path), role.path)
 
 def publish(path, url):
@@ -338,7 +335,8 @@ def publish(path, url):
 # entrypoint #
 ##############
 
-def get_source_targets(role, exclude):
+def get_dist_sources(role, exclude):
+	"build dist depedency sub-graph"
 	targets = {}
 	# existing files:
 	for root, dirnames, filenames in os.walk(role.path):
@@ -396,7 +394,7 @@ def get_target(key, role, exclude, _cache = {}):
 		elif key == "dist":
 			_cache[key] = fckit.BuildTarget(
 				path = os.path.join(build_path, "dist"),
-				sources = get_source_targets(
+				sources = get_dist_sources(
 					role = role,
 					exclude = exclude),
 				on_build = True)
@@ -410,10 +408,24 @@ def get_target(key, role, exclude, _cache = {}):
 						role = role,
 						exclude = exclude)],
 					build_path = build_path))
+		elif key == "check":
+			raise NotImplementedError
 		elif key == "package":
 			_cache[key] = fckit.BuildTarget(
 				path = os.path.join(build_path, "%s-%s.tgz" % (role.name, role.version)),
+				sources = [get_target(
+					key = "dist",
+					role = role,
+					exclude = exclude)],
 				on_build = lambda tgtpath, srcpaths: package(tgtpath, role))
+		elif key == "publish":
+			_cache[key] = fckit.BuildTarget(
+				path = "publish",
+				phony = True,
+				sources = [get_target(
+					key = "package",
+					role = role,
+					exclude = exclude)])
 		else:
 			raise Error(key, "unknown target")
 	return _cache[key]
