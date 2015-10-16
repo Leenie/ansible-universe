@@ -9,7 +9,7 @@ Usage:
   ansible-universe --help
 
 Options:
-  -W FLAGS, --warnings FLAGS  comma-separated list of flags to enable
+  -W FLAGS, --warnings FLAGS  comma-separated list of flags to enable [default: all]
   -C PATH, --directory PATH   set working directory [default: .]
   -r URL, --repository URL    set HTTP repository
   -v, --verbose               output executed commands
@@ -47,7 +47,13 @@ import textwrap, fnmatch, glob, sys, os
 
 import docopt, jinja2, fckit, yaml # 3rd-party
 
-MANIFESTS = tuple(dict({"name": name}, **__import__(name, globals()).MANIFEST) for name in ()) #FIXME
+MANIFESTS = tuple(dict({"name": name}, **__import__(name, globals()).MANIFEST) for name in (
+	"copy_has_owner",
+	"manifest_has_author",
+	"manifest_has_license",
+	"manifest_has_platforms",
+	"manifest_has_version",
+	"subdir_is_defined")) #FIXME
 
 class Error(fckit.Error): pass
 
@@ -284,45 +290,54 @@ def generate_maintask(role):
 		obj = tasks,
 		path = role.tasks_path)
 
-def clean(targets, build_path):
-	for tgt in targets:
-		tgt.clean(purge = True)
+def clean(role, build_path):
 	if os.path.exists(build_path):
 		fckit.remove(build_path)
+	for root, dirnames, filenames in os.walk(role.path):
+		for filename in filenames:
+			path = os.path.join(root, filename)
+			if fnmatch.fnmatch(filename, ".*.hmap") or path in (role.readme_path, role.tasks_path):
+				fckit.remove(path)
 
-def warning(*strings):
-	sys.stderr.write(fckit.magenta("WARNING! %s\n") % ": ".join(strings).encode("utf-8"))
-
-def check(role, warning_flags):
+def check(path, role, warning_flags):
 	manifests = filter(
-		lambda manifest: not warning_flags or manifest.get("flag", manifest["name"]) in warning_flags,
+		lambda manifest: "all" in warning_flags or manifest.get("flag", manifest["name"]) in warning_flags,
 		MANIFESTS)
-	if manifests:
-		for variable in role.variables:
-			for manifest in manifests:
-				if "check_variable" in manifest:
-					try:
-						manifest["check_variable"](
-							variable = variable,
-							role = role)
-					except AssertionError as exc:
-						warning(variable, "%s" % exc)
-		for dirname, _, basenames in os.walk(TASKSDIR):
-			for basename in basenames:
-				_, extname = os.path.splitext(basename)
+	with open(path, "w") as fp:
+		def warning(*strings):
+			msg = ": ".join(strings).encode("utf-8")
+			sys.stderr.write(fckit.magenta("WARNING! %s\n" % msg))
+			fp.write("%s\n" % msg)
+		def check_predicate(objects, manifests):
+			for key in objects:
+				for manifest in manifests:
+					if not manifest["predicate"](objects[key], role):
+						warning(key, manifest["message"])
+		# check_predicate(
+		# 	objects = {role.name: role},
+		# 	manifests = filter(lambda manifest: manifest["type"] == "role", manifests))
+		check_predicate(
+			objects = {key: key for key in role.variables},
+			manifests = filter(lambda manifest: manifest["type"] == "variable", manifests))
+		check_predicate(
+			objects = {
+				basename: basename
+				for basename in os.listdir(role.path)
+				if os.path.isdir(os.path.join(role.path, basename))},
+			manifests = filter(lambda manifest: manifest["type"] == "subdir", manifests))
+		objects = {}
+		for root, _, filenames in os.walk(os.path.dirname(role.tasks_path)):
+			for filename in filenames:
+				_, extname = os.path.splitext(filename)
 				if extname == ".yml":
-					path = os.path.join(dirname, basename)
+					path = os.path.join(root, filename)
 					tasks = unmarshall(path, default = []) or []
 					for idx, task in enumerate(tasks):
-						for manifest in manifests:
-							if "check_task" in manifest:
-								try:
-									manifest["predicate"](
-										task = task,
-										role = role)
-								except AssertionError as exc:
-									name = task.get("name", "task#%i" % (idx + 1))
-									warning("%s[%s]" % (path, name), "%s" % exc)
+						name = task.get("name", "#%i" % (idx + 1))
+						objects[name] = task
+		check_predicate(
+			objects = objects,
+			manifests = filter(lambda manifest: manifest["type"] == "task", manifests))
 
 def package(path, role):
 	print "generating", path
@@ -336,9 +351,9 @@ def publish(path, url):
 ##############
 
 def get_dist_sources(role, exclude):
-	"build dist depedency sub-graph"
+	"build dist dependency sub-graph"
 	targets = {}
-	# existing files:
+	# build targets out of existing files:
 	for root, dirnames, filenames in os.walk(role.path):
 		excluded = tuple(
 			dirname
@@ -360,7 +375,7 @@ def get_dist_sources(role, exclude):
 				targets[path] = fckit.BuildTarget(
 					path = path,
 					on_build = None) # cannot build source file
-	# files to generate if missing:
+	# build/update targets of files to generate:
 	def is_in_defaults_path(key):
 		return targets[key].path.startswith(os.path.dirname(role.defaults_path))
 	def is_in_vars_path(key):
@@ -379,7 +394,7 @@ def get_dist_sources(role, exclude):
 		on_build = lambda tgtpath, srcpaths: generate_maintask(role))
 	return targets.values()
 
-def get_target(key, role, exclude, _cache = {}):
+def get_target(key, role, exclude, warning_flags, _cache = {}):
 	build_path = os.path.join(role.path, ".build")
 	if not key in _cache:
 		if key == "show":
@@ -391,6 +406,13 @@ def get_target(key, role, exclude, _cache = {}):
 			_cache[key] = fckit.BuildTarget(
 				path = role.meta_path,
 				on_build = lambda tgtpath, srcpaths: init_manifest(role))
+		elif key == "clean":
+			_cache[key] = fckit.BuildTarget(
+				path = key,
+				phony = True,
+				on_build = lambda srcpaths: clean(
+					role = role,
+					build_path = build_path))
 		elif key == "dist":
 			_cache[key] = fckit.BuildTarget(
 				path = os.path.join(build_path, "dist"),
@@ -398,25 +420,26 @@ def get_target(key, role, exclude, _cache = {}):
 					role = role,
 					exclude = exclude),
 				on_build = True)
-		elif key == "clean":
-			_cache[key] = fckit.BuildTarget(
-				path = key,
-				phony = True,
-				on_build = lambda srcpaths: clean(
-					targets = [get_target(
-						key = "dist",
-						role = role,
-						exclude = exclude)],
-					build_path = build_path))
 		elif key == "check":
-			raise NotImplementedError
+			_cache[key] = fckit.BuildTarget(
+				path = os.path.join(build_path, "warnings.txt"),
+				sources = [get_target(
+					key = "dist",
+					role = role,
+					exclude = exclude,
+					warning_flags = warning_flags)],
+				on_build = lambda tgtpath, srcpaths: check(
+					path = tgtpath,
+					role = role,
+					warning_flags = warning_flags))
 		elif key == "package":
 			_cache[key] = fckit.BuildTarget(
 				path = os.path.join(build_path, "%s-%s.tgz" % (role.name, role.version)),
 				sources = [get_target(
-					key = "dist",
+					key = "check",
 					role = role,
-					exclude = exclude)],
+					exclude = exclude,
+					warning_flags = warning_flags)],
 				on_build = lambda tgtpath, srcpaths: package(tgtpath, role))
 		elif key == "publish":
 			_cache[key] = fckit.BuildTarget(
@@ -425,7 +448,8 @@ def get_target(key, role, exclude, _cache = {}):
 				sources = [get_target(
 					key = "package",
 					role = role,
-					exclude = exclude)])
+					exclude = exclude,
+					warning_flags = warning_flags)])
 		else:
 			raise Error(key, "unknown target")
 	return _cache[key]
@@ -445,6 +469,7 @@ def main(args = None):
 			get_target(
 				key = key,
 				role = role,
-				exclude = opts["--exclude"].split(",")).build()
+				exclude = opts["--exclude"].split(","),
+				warning_flags = opts["--warnings"].split(",")).build()
 	except fckit.Error as exc:
 		raise SystemExit(fckit.red(exc))

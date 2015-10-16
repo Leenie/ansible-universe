@@ -10,9 +10,8 @@ DEFINED = (
 	"vars",
 	"library")
 
-def check(subdir, _):
-	assert subdir in DEFINED, "undefined role sub-directory"
-
 MANIFEST = {
-	"check_subdir": check,
+	"type": "subdir",
+	"message": "undefined role sub-directory",
+	"predicate": lambda basename, role: basename in DEFINED,
 }
