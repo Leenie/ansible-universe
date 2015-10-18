@@ -300,30 +300,33 @@ def clean(role, build_path):
 				fckit.remove(path)
 
 def check(path, role, warning_flags):
-	manifests = filter(
-		lambda manifest: "all" in warning_flags or manifest.get("flag", manifest["name"]) in warning_flags,
-		MANIFESTS)
+	manifests = [
+		manifest for manifest in MANIFESTS
+		if "all" in warning_flags or manifest.get("flag", manifest["name"]) in warning_flags]
 	with open(path, "w") as fp:
 		def warning(*strings):
 			msg = ": ".join(strings).encode("utf-8")
 			sys.stderr.write(fckit.magenta("WARNING! %s\n" % msg))
 			fp.write("%s\n" % msg)
-		def check_predicate(objects, manifests):
+		def check_role(manifests):
+			for manifest in manifests:
+				if not manifest["predicate"](role):
+					warning(role.name, manifest["message"])
+		def check_objects(objects, manifests):
 			for key in objects:
 				for manifest in manifests:
 					if not manifest["predicate"](objects[key], role):
 						warning(key, manifest["message"])
-		# check_predicate(
-		# 	objects = {role.name: role},
-		# 	manifests = filter(lambda manifest: manifest["type"] == "role", manifests))
-		check_predicate(
+		check_role(
+			manifests = filter(lambda manifest: manifest["type"] == "role", manifests))
+		check_objects(
 			objects = {key: key for key in role.variables},
 			manifests = filter(lambda manifest: manifest["type"] == "variable", manifests))
-		check_predicate(
+		check_objects(
 			objects = {
 				basename: basename
 				for basename in os.listdir(role.path)
-				if os.path.isdir(os.path.join(role.path, basename))},
+				if not basename.startswith(".") and os.path.isdir(os.path.join(role.path, basename))},
 			manifests = filter(lambda manifest: manifest["type"] == "subdir", manifests))
 		objects = {}
 		for root, _, filenames in os.walk(os.path.dirname(role.tasks_path)):
@@ -335,7 +338,7 @@ def check(path, role, warning_flags):
 					for idx, task in enumerate(tasks):
 						name = task.get("name", "#%i" % (idx + 1))
 						objects[name] = task
-		check_predicate(
+		check_objects(
 			objects = objects,
 			manifests = filter(lambda manifest: manifest["type"] == "task", manifests))
 
@@ -353,7 +356,7 @@ def publish(path, url):
 def get_dist_sources(role, exclude):
 	"build dist dependency sub-graph"
 	targets = {}
-	# build targets out of existing files:
+	# first, create non-buildable targets out of existing files:
 	for root, dirnames, filenames in os.walk(role.path):
 		excluded = tuple(
 			dirname
@@ -375,7 +378,7 @@ def get_dist_sources(role, exclude):
 				targets[path] = fckit.BuildTarget(
 					path = path,
 					on_build = None) # cannot build source file
-	# build/update targets of files to generate:
+	# second, update targets of files to generate:
 	def is_in_defaults_path(key):
 		return targets[key].path.startswith(os.path.dirname(role.defaults_path))
 	def is_in_vars_path(key):

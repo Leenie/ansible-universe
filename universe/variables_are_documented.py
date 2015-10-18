@@ -1,9 +1,8 @@
 # copyright (c) 2015 fclaerhout.fr, released under the MIT license.
 
-def check(variable, role):
-	assert variable in role.readme, "variable not documented"
-
 MANIFEST = {
 	"flag": "readme",
-	"check_variable": check,
+	"type": "variable",
+	"message": "variable not documented",
+	"check_variable": lambda variable, role: variable in role.readme,
 }
