@@ -3,7 +3,7 @@
   * Role syntax check
   * Proper `README.md` generation
   * Platform runtime check generation
-  * Role linter implementing best practices
+  * Role [linter][9] implementing best practices
   * Packaging & publishing into private web repositories
 
 The following [build targets][7] are supported:
