@@ -4,7 +4,7 @@
   * Proper `README.md` generation
   * Platform runtime check generation
   * Role [linter][9] implementing best practices
-  * Packaging & publishing into private web repositories
+  * Packaging & publishing into private web (DAV) repositories
 
 The following [build targets][7] are supported:
   * `init`     instantiate role template
