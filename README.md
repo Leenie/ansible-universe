@@ -34,7 +34,7 @@ Example:
 
 On `dist`, two files are generated:
   * `tasks/main.yml`, performing the platform check and including any other YAML file in `tasks/`.
-    Conditions to inclusions can be specified via the `inconditions` attribute of the manifest.
+    Conditions to inclusions can be specified via the `include_when` attribute of the manifest.
   * `README.md`, gathering the role description, supported platforms and data on variables.
 
 
