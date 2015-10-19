@@ -51,15 +51,17 @@ To uninstall:
 Development Guide
 -----------------
 
-The built-in linter can easily be extended with your own checks:
-  * in the universe directory, create a new module defining the `MANIFEST` dictionary
+The built-in [linter][9] can easily be extended with your own checks:
+  * in the universe directory, create a new module defining the `MANIFEST` global dict
   * in `__init__.py`, register that new module by its name in the `MANIFESTS` dict
 
-The module `MANIFEST` contains the following attributes:
-  * required `type`, either `role`, `variable`, `subdir` or `task`
-  * required `predicate`, a callback with two parameters (object, helpers) and returning a Boolean
-  * required `message`, the message to display when the assertion is violated
-  * optional `flag` (default to module name)
+In your module, the `MANIFEST` dictionary shall contains the following attributes:
+  * Required `type`: either `role`, `variable`, `subdir` or `task`.
+    This specify the objects that will be passed to the predicate below.
+  * Required `predicate`: a callback with two parameters (object, helpers) and returning a Boolean.
+    `helpers` is a dictionary containing various functions and objects: `role`, `marshall()`.
+  * Required `message`: the message to display when the predicate is violated.
+  * Optional `flag`: default to module name, symbol used with the `-W` command line option.
 
 
 Ansible Best Practices
@@ -205,3 +207,4 @@ If you need an explicit user for a given task, use `sudo_user: <name>` and `sudo
 [6]: https://en.wikipedia.org/wiki/Undefined_behavior
 [7]: https://github.com/fclaerho/buildstack#glossary
 [8]: https://galaxy.ansible.com/intro#share
+[9]: https://en.wikipedia.org/wiki/Lint_(software)
