@@ -53,9 +53,9 @@ Development Guide
 
 The built-in linter can easily be extended with your own checks:
   * in the universe directory, create a new module defining the `MANIFEST` dictionary
-  * in `__init__.py`, register that new module in the `MANIFESTS` dict
+  * in `__init__.py`, register that new module by its name in the `MANIFESTS` dict
 
-The `MANIFEST` contains the following attributes:
+The module `MANIFEST` contains the following attributes:
   * required `type`, either `role`, `variable`, `subdir` or `task`
   * required `predicate`, a callback with two parameters (object, helpers) and returning a Boolean
   * required `message`, the message to display when the assertion is violated
