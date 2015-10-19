@@ -64,8 +64,8 @@ In your module, the `MANIFEST` dictionary shall contains the following attribute
   * Optional `flag`: default to module name, symbol used with the `-W` command line option.
 
 
-Ansible Best Practices
-----------------------
+Appendix: Ansible Best Practices
+--------------------------------
 
 ### GENERAL DESIGN RULES
 
