@@ -125,7 +125,7 @@ class Role(object):
 
 	@property
 	def platforms(self):
-		"return the list of supported platforms {'name':..., 'versions':...}"
+		"return the list of supported platforms {'name':…, 'versions':…}"
 		try:
 			return self.galaxy_info["platforms"]
 		except:
@@ -195,9 +195,10 @@ def show(role):
 		explicit_start = True,
 		default_flow_style = False)
 
-def init_manifest(role):
+def init_manifest(path):
+	print "generating", path
 	marshall(
-		path = role.meta_path,
+		path = path,
 		obj = {
 			"dependencies": [],
 			"inconditions": {},
@@ -218,7 +219,7 @@ def generate_readme(role):
 	template = """
 		<!-- THIS IS A GENERATED FILE, DO NOT EDIT -->
 
-		{{ description or "(argh, no description yet.)" }}
+		{{ description or "(No description yet.)" }}
 
 
 		## Supported Platforms
@@ -397,65 +398,61 @@ def get_dist_sources(role, exclude):
 		on_build = lambda tgtpath, srcpaths: generate_maintask(role))
 	return targets.values()
 
-def get_target(key, role, exclude, warning_flags, _cache = {}):
-	build_path = os.path.join(role.path, ".build")
-	if not key in _cache:
-		if key == "show":
-			_cache[key] = fckit.BuildTarget(
-				path = key,
-				phony = True,
-				on_build = lambda srcpaths: show(role))
-		elif key == "init":
-			_cache[key] = fckit.BuildTarget(
-				path = role.meta_path,
-				on_build = lambda tgtpath, srcpaths: init_manifest(role))
-		elif key == "clean":
-			_cache[key] = fckit.BuildTarget(
-				path = key,
-				phony = True,
-				on_build = lambda srcpaths: clean(
-					role = role,
-					build_path = build_path))
-		elif key == "dist":
-			_cache[key] = fckit.BuildTarget(
-				path = os.path.join(build_path, "dist"),
-				sources = get_dist_sources(
-					role = role,
-					exclude = exclude),
-				on_build = True)
-		elif key == "check":
-			_cache[key] = fckit.BuildTarget(
-				path = os.path.join(build_path, "warnings.txt"),
-				sources = [get_target(
-					key = "dist",
-					role = role,
-					exclude = exclude,
-					warning_flags = warning_flags)],
-				on_build = lambda tgtpath, srcpaths: check(
-					path = tgtpath,
-					role = role,
-					warning_flags = warning_flags))
-		elif key == "package":
-			_cache[key] = fckit.BuildTarget(
-				path = os.path.join(build_path, "%s-%s.tgz" % (role.name, role.version)),
-				sources = [get_target(
-					key = "check",
-					role = role,
-					exclude = exclude,
-					warning_flags = warning_flags)],
-				on_build = lambda tgtpath, srcpaths: package(tgtpath, role))
-		elif key == "publish":
-			_cache[key] = fckit.BuildTarget(
-				path = "publish",
-				phony = True,
-				sources = [get_target(
-					key = "package",
-					role = role,
-					exclude = exclude,
-					warning_flags = warning_flags)])
-		else:
-			raise Error(key, "unknown target")
-	return _cache[key]
+class Targets(object):
+
+	def __init__(self, role, exclude, warning_flags):
+		self.warning_flags = warning_flags
+		self.build_path = os.path.join(role.path, ".build")
+		self.exclude = exclude
+		self.cache = {}
+		self.role = role
+
+	def __getitem__(self, key):
+		if not key in self.cache:
+			if key == "show":
+				self.cache[key] = fckit.BuildTarget(
+					path = key,
+					phony = True,
+					on_build = lambda srcpaths: show(self.role))
+			elif key == "init":
+				self.cache[key] = fckit.BuildTarget(
+					path = self.role.meta_path,
+					on_build = lambda tgtpath, srcpaths: init_manifest(tgtpath))
+			elif key == "clean":
+				self.cache[key] = fckit.BuildTarget(
+					path = key,
+					phony = True,
+					on_build = lambda srcpaths: clean(
+						role = self.role,
+						build_path = self.build_path))
+			elif key == "dist":
+				self.cache[key] = fckit.BuildTarget(
+					path = os.path.join(self.build_path, "dist"),
+					sources = get_dist_sources(
+						role = self.role,
+						exclude = self.exclude),
+					on_build = True)
+			elif key == "check":
+				self.cache[key] = fckit.BuildTarget(
+					path = os.path.join(self.build_path, "warnings.txt"),
+					sources = [self["dist"]],
+					on_build = lambda tgtpath, srcpaths: check(
+						path = tgtpath,
+						role = self.role,
+						warning_flags = self.warning_flags))
+			elif key == "package":
+				self.cache[key] = fckit.BuildTarget(
+					path = os.path.join(self.build_path, "%s-%s.tgz" % (self.role.name, self.role.version)),
+					sources = [self["check"]],
+					on_build = lambda tgtpath, srcpaths: package(tgtpath, self.role))
+			elif key == "publish":
+				self.cache[key] = fckit.BuildTarget(
+					path = "publish",
+					phony = True,
+					sources = [self["package"]])
+			else:
+				raise Error(key, "unknown target")
+		return self.cache[key]
 
 def main(args = None):
 	opts = docopt.docopt(
@@ -467,12 +464,12 @@ def main(args = None):
 		if opts["--verbose"]:
 			fckit.enable_tracing()
 		role = Role(opts["--directory"])
+		targets = Targets(
+			role = role,
+			exclude = opts["--exclude"].split(","),
+			warning_flags = opts["--warnings"].split(","))
 		for key in opts["TARGETS"]:
 			fckit.trace("at %s" % key)
-			get_target(
-				key = key,
-				role = role,
-				exclude = opts["--exclude"].split(","),
-				warning_flags = opts["--warnings"].split(",")).build()
+			targets[key].build()
 	except fckit.Error as exc:
 		raise SystemExit(fckit.red(exc))
