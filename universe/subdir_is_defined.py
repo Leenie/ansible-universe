@@ -11,6 +11,7 @@ DEFINED = (
 	"library")
 
 MANIFEST = {
+	"flag": "layout",
 	"type": "subdir",
 	"message": "undefined role sub-directory",
 	"predicate": lambda basename, helpers: basename in DEFINED,
