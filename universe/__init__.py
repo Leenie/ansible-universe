@@ -53,7 +53,17 @@ MANIFESTS = tuple(dict({"name": name}, **__import__(name, globals()).MANIFEST) f
 	"manifest_has_license",
 	"manifest_has_platforms",
 	"manifest_has_version",
-	"subdir_is_defined")) #FIXME
+	"subdir_is_defined",
+	"syntax_is_ok",
+	"task_has_name",
+	"task_has_no_remote_user",
+	"template_has_owner",
+	"variable_is_prefixed",
+	"variable_is_documented"))
+
+###########
+# helpers #
+###########
 
 class Error(fckit.Error): pass
 
@@ -127,7 +137,7 @@ class Role(object):
 	def platforms(self):
 		"return the list of supported platforms {'name':…, 'versions':…}"
 		try:
-			return self.galaxy_info["platforms"]
+			return self.galaxy_info.get("platforms", {})
 		except:
 			raise Error("missing platforms attribute in manifest")
 
@@ -138,17 +148,17 @@ class Role(object):
 		for key, value in (unmarshall(self.defaults_path) or {}).items():
 			res[key] = {
 				"description": None,
-				"constant": False,
 				"value": value,
+				"type": "default"
 			}
 		for key, value in (unmarshall(self.vars_path) or {}).items():
 			if key in res:
-				raise Error(key, "variable both set in vars/ and defaults/")
+				raise Error(key, "variable set twice in vars/ and defaults/")
 			else:
 				res[key] = {
 					"description": None,
-					"constant": True,
 					"value": value,
+					"type": "var"
 				}
 		for key, value in self.manifest.get("variables", {}).items():
 			if key in res:
@@ -156,8 +166,8 @@ class Role(object):
 			else:
 				res[key] = {
 					"description": value,
-					"constant": False,
 					"value": None,
+					"type": None
 				}
 		return res
 
@@ -178,9 +188,21 @@ class Role(object):
 		"return dict mapping tasks/ playbooks to include conditions"
 		return self.manifest.get("include_when", {})
 
-#################
-# build targets #
-#################
+	@property
+	def legacy(self):
+		"main task file contains handcrafted tasks not to be touched"
+		return os.path.exists(self.tasks_path) and any(
+			"fail" not in task and "include" not in task
+			for task in unmarshall(self.tasks_path))
+
+	@property
+	def readme(self):
+		with open(self.readme_path, "r") as fp:
+			return fp.read()
+
+###################
+# build callbacks #
+###################
 
 def show(role):
 	print yaml.dump(
@@ -215,30 +237,41 @@ def init_manifest(path):
 	)
 
 def generate_readme(role):
-	print "generating %s" % role.readme_path
+	print "generating", role.readme_path
 	template = """
 		<!-- THIS IS A GENERATED FILE, DO NOT EDIT -->
 
 		{{ description or "(No description yet.)" }}
 
+		* * *
+
 
 		## Supported Platforms
-
-		{% for ptf in platforms %}  * {{ ptf.name }}
+		{% for ptf in platforms %}
+		  * {{ ptf.name }}
 		{% else %}
 		No supported platform specified (yet.)
 		{% endfor %}
 
 		## Variables
-
-		| Name | Value | Constant? | Description |
-		|------|-------|-----------|-------------|
-		{% for key in variables.keys()|sort %}| {{ key }} | {{ variables[key].value }} | {{ variables[key].constant }} | {{ variables[key].description }} |
+		{% if variables %}
+		| Name | Value | Description |
+		|------|-------|-------------|
+		{% for key in variables.keys()|sort %}| {{ key }} | {{ variables[key].type if variables[key].type != None else "" }} {{ variables[key].value if variables[key].value != None else "" }} | {{ variables[key].description }} |
 		{% endfor %}
+		{% else %}
+		No variable.
+		{% endif %}
 
 		## Usage
 
-		Read the Ansible documentation at https://docs.ansible.com/playbooks_roles.html.
+		To use this role from a **playbook**, 
+		register its ID in the project `requirements.{txt,yml}` file.
+		To add this role as another **role dependency**,
+		register its ID in the `dependencies` list of the role manifest `meta/main.yml`.
+
+		For further details,
+		please refer to the Ansible documentation at https://docs.ansible.com/playbooks_roles.html.
 
 
 		## Maintenance
@@ -249,7 +282,6 @@ def generate_readme(role):
 		The following files are generated or updated based on the role manifest `meta/main.yml`:
 		  * tasks/main.yml
 		  * README.md
-
 	""".decode("utf-8")
 	text = jinja2.Template(textwrap.dedent(template)).render(**{
 		"description": role.description,
@@ -263,29 +295,34 @@ def generate_readme(role):
 		extname = ".txt")
 
 def generate_maintask(role):
-	print "generating %s" % role.tasks_path
+	print "generating", role.tasks_path
 	platforms = role.platforms
 	tasks = []
 	if platforms:
 		tasks.append({
 			"name": "assert the target platform is supported",
 			"fail": {
-				"msg": "unsupported platform -- please contact %s for support" % role.author,
+				"msg": "unsupported platform -- please contact the role maintainer for support",
 			},
 			"when": "ansible_distribution not in %s" % list(platform["name"] for platform in platforms),
 		})
-	for path in glob.glob(os.path.join(os.path.dirname(role.tasks_path), "*.yml")):
-		name = os.path.basename(path)
-		fckit.trace("including", name)
-		if name in role.include_when:
+	if role.legacy:
+		# backward-compatibility mode: update main task file with platform check
+		print "handcrafted main task file, falling back to compatibility mode"
+		for task in unmarshall(role.tasks_path):
+			if platforms and "fail" in task and task["name"] == tasks[0]["name"]:
+				continue # skip check
+			else:
+				tasks.append(task) # copy everything else
+	else:
+		# new mode: generate main task file
+		for path in glob.glob(os.path.join(os.path.dirname(role.tasks_path), "*.yml")):
+			name = os.path.basename(path)
+			fckit.trace("including", name)
 			tasks.append({
 				"name": "%s is included" % name,
 				"include": name,
-				"when": role.include_when[name],
-			})
-		else:
-			tasks.append({
-				"include": name,
+				"when": role.include_when.get(name, True),
 			})
 	marshall(
 		obj = tasks,
@@ -294,38 +331,40 @@ def generate_maintask(role):
 def clean(role, build_path):
 	if os.path.exists(build_path):
 		fckit.remove(build_path)
+	generated = (role.readme_path,) if role.legacy else (role.readme_path, role.tasks_path)
 	for root, dirnames, filenames in os.walk(role.path):
 		for filename in filenames:
 			path = os.path.join(root, filename)
-			if fnmatch.fnmatch(filename, ".*.hmap") or path in (role.readme_path, role.tasks_path):
+			if fnmatch.fnmatch(filename, ".*.hmap") or path in generated:
 				fckit.remove(path)
 
 def check(path, role, warning_flags):
 	manifests = [
 		manifest for manifest in MANIFESTS
 		if "all" in warning_flags or manifest.get("flag", manifest["name"]) in warning_flags]
+	helpers = {
+		"marshall": marshall,
+		"role": role,
+	}
 	with open(path, "w") as fp:
-		def warning(*strings):
-			msg = ": ".join(strings).encode("utf-8")
-			sys.stderr.write(fckit.magenta("WARNING! %s\n" % msg))
-			fp.write("%s\n" % msg)
-		def check_role(manifests):
-			for manifest in manifests:
-				if not manifest["predicate"](role):
-					warning(role.name, manifest["message"])
 		def check_objects(objects, manifests):
 			for key in objects:
 				for manifest in manifests:
-					if not manifest["predicate"](objects[key], role):
-						warning(key, manifest["message"])
-		check_role(
+					if not manifest["predicate"](objects[key], helpers):
+						msg = manifest["message"].encode("utf-8")
+						sys.stderr.write(fckit.magenta(
+							"== WARNING ==\n   flag: %s\n   source: %s\n   reason: %s\n"
+							% (manifest.get("flag", manifest["name"]), key, msg)))
+						fp.write("%s: %s\n" % (key, msg))
+		check_objects(
+			objects = {"role '%s'" % role.name: role},
 			manifests = filter(lambda manifest: manifest["type"] == "role", manifests))
 		check_objects(
-			objects = {key: key for key in role.variables},
+			objects = {"variable '%s'" % key: key for key in role.variables},
 			manifests = filter(lambda manifest: manifest["type"] == "variable", manifests))
 		check_objects(
 			objects = {
-				basename: basename
+				"subdir '%s'" % basename: basename
 				for basename in os.listdir(role.path)
 				if not basename.startswith(".") and os.path.isdir(os.path.join(role.path, basename))},
 			manifests = filter(lambda manifest: manifest["type"] == "subdir", manifests))
@@ -337,8 +376,8 @@ def check(path, role, warning_flags):
 					path = os.path.join(root, filename)
 					tasks = unmarshall(path, default = []) or []
 					for idx, task in enumerate(tasks):
-						name = task.get("name", "#%i" % (idx + 1))
-						objects[name] = task
+						name = "%s[%s]" % (filename, task.get("name", "#%i" % (idx + 1)))
+						objects["task '%s'" % name] = task
 		check_objects(
 			objects = objects,
 			manifests = filter(lambda manifest: manifest["type"] == "task", manifests))
@@ -350,9 +389,9 @@ def package(path, role):
 def publish(path, url):
 	fckit.check_call("curl", "-k", "-T", path, url)
 
-##############
-# entrypoint #
-##############
+#################
+# build targets #
+#################
 
 def get_dist_sources(role, exclude):
 	"build dist dependency sub-graph"
@@ -453,6 +492,10 @@ class Targets(object):
 			else:
 				raise Error(key, "unknown target")
 		return self.cache[key]
+
+###############
+# entry point #
+###############
 
 def main(args = None):
 	opts = docopt.docopt(

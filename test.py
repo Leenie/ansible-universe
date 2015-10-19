@@ -30,10 +30,11 @@ class Test(unittest.TestCase):
 	def tearDown(self):
 		fckit.remove(self.tmpdir)
 
-	def test_dist_check(self):
-		self._main("dist", "check")
+	def test_check(self):
+		self._main("check")
+		map(self._assert_path_state, INITPATHS + DISTPATHS)
 
-	def test_dist_distclean(self):
+	def test_dist_clean(self):
 		self._main("dist")
 		map(self._assert_path_state, INITPATHS + DISTPATHS)
 		self._main("clean")
@@ -42,6 +43,7 @@ class Test(unittest.TestCase):
 
 	def test_package(self):
 		self._main("package")
+		map(self._assert_path_state, INITPATHS + DISTPATHS)
 		path = os.path.join(self.tmpdir, ".build", "%s-0.0.1.tgz" % os.path.basename(self.tmpdir))
 		self._assert_path_state(path)
 

@@ -2,6 +2,6 @@
 
 MANIFEST = {
 	"type": "role",
-	"message": "missing platforms attribute",
-	"predicate": lambda role: "platforms" in role.manifest["galaxy_info"],
+	"message": "missing platforms attribute, please specify the supported platforms",
+	"predicate": lambda role, helpers: "platforms" in role.manifest["galaxy_info"],
 }

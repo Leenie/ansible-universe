@@ -3,6 +3,6 @@
 MANIFEST = {
 	"flag": "naming",
 	"type": "variable",
-	"message": "variable not properly prefixed,  -- expected '%s'" % role.prefix,
-	"predicate": lambda variable, role: variable.startswith(role.prefix),
+	"message": "unexpected variable prefix (you can change the expected prefix in the role manifest)",
+	"predicate": lambda variable, helpers: variable.startswith(helpers["role"].prefix),
 }

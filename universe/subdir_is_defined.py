@@ -13,5 +13,5 @@ DEFINED = (
 MANIFEST = {
 	"type": "subdir",
 	"message": "undefined role sub-directory",
-	"predicate": lambda basename, role: basename in DEFINED,
+	"predicate": lambda basename, helpers: basename in DEFINED,
 }

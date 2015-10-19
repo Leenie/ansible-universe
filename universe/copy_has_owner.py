@@ -2,6 +2,6 @@
 
 MANIFEST = {
 	"type": "task",
-	"message": "missing 'owner' attribute, your file will be owned by the current user",
-	"predicate": lambda task, role: not "copy" in task or "owner" in task["copy"],
+	"message": "missing 'owner' attribute, your file will be owned by the varying current user",
+	"predicate": lambda task, helpers: not "copy" in task or "owner" in task["copy"],
 }

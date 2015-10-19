@@ -2,6 +2,6 @@
 
 MANIFEST = {
 	"type": "task",
-	"message": "do not set a remote_user for a task, use sudo_*"
-	"predicate": lambda task, role: not "remote_user" in task,
+	"message": "do not set a remote_user for a task, use sudo_*",
+	"predicate": lambda task, helpers: not "remote_user" in task,
 }

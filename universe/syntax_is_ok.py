@@ -4,10 +4,11 @@ import os
 
 import fckit # 3rd-party
 
-def check_syntax(role):
+def check_syntax(role, helpers):
 	"generate a playbook using the role and syntax-check it"
-	role_path = os.path.abspath(role.path)
+	roles_path = os.path.dirname(os.path.abspath(role.path))
 	tmpdir = fckit.mkdir()
+	cwd = os.getcwd()
 	fckit.chdir(tmpdir)
 	try:
 		# write playbook:
@@ -16,32 +17,34 @@ def check_syntax(role):
 			"connection": "local",
 			"roles": [role.name],
 		}]
-		marshall(
+		helpers["marshall"](
 			obj = playbook,
 			path = os.path.join(tmpdir, "playbook.yml"))
 		# write inventory:
 		inventory = "localhost ansible_connection=local"
-		marshall(
+		helpers["marshall"](
 			obj = inventory,
 			path = os.path.join(tmpdir, "inventory.cfg"),
 			extname = ".txt")
 		# write configuration:
 		config = {
 			"defaults": {
-				"roles_path": role_path,
+				"roles_path": roles_path,
 				"hostfile": "inventory.cfg",
 			}
 		}
-		marshall(
+		helpers["marshall"](
 			obj = config,
 			path = os.path.join(tmpdir, "ansible.cfg"))
 		# perform the check:
 		fckit.check_call("ansible-playbook", "playbook.yml", "--syntax-check")
 		return True
+	except:
+		raise
+		return False
 	finally:
 		fckit.chdir(cwd)
 		fckit.remove(tmpdir)
-		return False
 
 MANIFEST = {
 	"flag": "syntax",

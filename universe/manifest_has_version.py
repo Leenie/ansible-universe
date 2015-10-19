@@ -2,6 +2,6 @@
 
 MANIFEST = {
 	"type": "role",
-	"message": "missing version attribute",
-	"predicate": lambda role: "version" in role.manifest,
+	"message": "missing version attribute, please specify the role version",
+	"predicate": lambda role, helpers: "version" in role.manifest,
 }

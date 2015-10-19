@@ -2,6 +2,6 @@
 
 MANIFEST = {
 	"type": "task",
-	"message": "missing 'name' attribute, please describe the target state"
-	"predicate": lambda task, role: "name" in task,
+	"message": "missing 'name' attribute, please describe the target state",
+	"predicate": lambda task, helpers: "name" in task,
 }
