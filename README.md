@@ -30,7 +30,7 @@ Example:
   * `prefix`, variable prefix, defaults to rolename
   * `version`, defaults to 0.0.1
   * `variables`, maps names to descriptions
-  * `inconditions`, maps tasks filename to include conditions
+  * `include_when`, maps tasks filename to include conditions
 
 On `dist`, two files are generated:
   * `tasks/main.yml`, performing the platform check and including any other YAML file in `tasks/`.
@@ -52,12 +52,14 @@ Development Guide
 -----------------
 
 The built-in linter can easily be extended with your own checks:
-  * in the universe directory, create a new module defining the `MANIFEST` dict
+  * in the universe directory, create a new module defining the `MANIFEST` dictionary
   * in `__init__.py`, register that new module in the `MANIFESTS` dict
 
-The `MANIFEST` global has three attributes:
-  * `predicate`, a callback taking a single `task` argument and returning a Boolean
-  * `message`, the message to display when the assertion is violated
+The `MANIFEST` contains the following attributes:
+  * required `type`, either `role`, `variable`, `subdir` or `task`
+  * required `predicate`, a callback with two parameters (object, helpers) and returning a Boolean
+  * required `message`, the message to display when the assertion is violated
+  * optional `flag` (default to module name)
 
 
 Ansible Best Practices
