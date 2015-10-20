@@ -269,7 +269,6 @@ def generate_readme(role):
 		register its ID in the project `requirements.{txt,yml}` file.
 		To add this role as another **role dependency**,
 		register its ID in the `dependencies` list of the role manifest `meta/main.yml`.
-
 		For further details,
 		please refer to the Ansible documentation at https://docs.ansible.com/playbooks_roles.html.
 
@@ -277,7 +276,7 @@ def generate_readme(role):
 		## Maintenance
 
 		Install [ansible-universe](https://github.com/fclaerho/ansible-universe)
-		and run `ansible-universe dist check` to re-generate this distribution.
+		and run `ansible-universe check` to re-generate this distribution.
 
 		The following files are generated or updated based on the role manifest `meta/main.yml`:
 		  * tasks/main.yml
@@ -331,7 +330,11 @@ def generate_maintask(role):
 def clean(role, build_path):
 	if os.path.exists(build_path):
 		fckit.remove(build_path)
-	generated = (role.readme_path,) if role.legacy else (role.readme_path, role.tasks_path)
+	if role.legacy:
+		print "skipping handcrafted main task file"
+		generated = (role.readme_path,)
+	else:
+		generated = (role.readme_path, role.tasks_path)
 	for root, dirnames, filenames in os.walk(role.path):
 		for filename in filenames:
 			path = os.path.join(root, filename)
@@ -352,10 +355,9 @@ def check(path, role, warning_flags):
 				for manifest in manifests:
 					if not manifest["predicate"](objects[key], helpers):
 						msg = manifest["message"].encode("utf-8")
-						sys.stderr.write(fckit.magenta(
-							"== WARNING ==\n   flag: %s\n   source: %s\n   reason: %s\n"
-							% (manifest.get("flag", manifest["name"]), key, msg)))
-						fp.write("%s: %s\n" % (key, msg))
+						fp.write(
+							"** warning: %s\n   source: %s\n   reason: %s\n"
+							% (manifest.get("flag", manifest["name"]), key, msg))
 		check_objects(
 			objects = {"role '%s'" % role.name: role},
 			manifests = filter(lambda manifest: manifest["type"] == "role", manifests))
@@ -514,5 +516,8 @@ def main(args = None):
 		for key in opts["TARGETS"]:
 			fckit.trace("at %s" % key)
 			targets[key].build()
+			if key == "check":
+				with open(targets[key].path, "r") as fp:
+					print fckit.magenta(fp.read())
 	except fckit.Error as exc:
 		raise SystemExit(fckit.red(exc))
