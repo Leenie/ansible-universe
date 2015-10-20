@@ -196,6 +196,12 @@ This is a bad idea as your users might want to use another user that has equival
 The root account is often disabled on modern systems for security reasons.
 If you need an explicit user for a given task, use `sudo_user: <name>` and `sudo: yes`.
 
+#### On copy/template, Set a owner, `-Wowner`
+
+If no owner is specified on a `copy` or a `template` task, the current user UID will be used.
+But that user can change and so will the file owner depending on who is running the playbook.
+This violates the idempotence rule.
+
 
 <!-- references -->
 
