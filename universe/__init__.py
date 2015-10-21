@@ -386,7 +386,12 @@ def check(path, role, warning_flags):
 
 def package(path, role):
 	print "generating", path
-	fckit.check_call("tar", "czf", path, "--exclude", os.path.dirname(path), role.path)
+	fckit.check_call(
+		"tar",
+		"-C", role.path,
+		"-zcvf", os.path.abspath(path),
+		"--exclude", os.path.abspath(os.path.dirname(path)),
+		".")
 
 def publish(path, url):
 	fckit.check_call("curl", "-k", "-T", path, url)
