@@ -441,7 +441,8 @@ def get_dist_sources(role, exclude):
 
 class Targets(object):
 
-	def __init__(self, role, exclude, warning_flags):
+	def __init__(self, role, exclude, warning_flags, repository_url):
+		self.repository_url = repository_url
 		self.warning_flags = warning_flags
 		self.build_path = os.path.join(role.path, ".build")
 		self.exclude = exclude
@@ -490,7 +491,10 @@ class Targets(object):
 				self.cache[key] = fckit.BuildTarget(
 					path = "publish",
 					phony = True,
-					sources = [self["package"]])
+					sources = [self["package"]],
+					on_build = lambda srcpath: publish(
+						path = self["package"].path,
+						url = self.repository_url))
 			else:
 				raise Error(key, "unknown target")
 		return self.cache[key]
@@ -512,7 +516,8 @@ def main(args = None):
 		targets = Targets(
 			role = role,
 			exclude = opts["--exclude"].split(","),
-			warning_flags = opts["--warnings"].split(","))
+			warning_flags = opts["--warnings"].split(","),
+			repository_url = opts["--repository"])
 		for key in opts["TARGETS"]:
 			fckit.trace("at %s" % key)
 			targets[key].build()
