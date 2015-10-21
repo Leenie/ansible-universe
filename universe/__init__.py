@@ -356,8 +356,8 @@ def check(path, role, warning_flags):
 					if not manifest["predicate"](objects[key], helpers):
 						msg = manifest["message"].encode("utf-8")
 						fp.write(
-							"** warning: %s\n   source: %s\n   reason: %s\n"
-							% (manifest.get("flag", manifest["name"]), key, msg))
+							"** warning: %s\n   source: %s\n   flag: %s\n"
+							% (msg, key, manifest.get("flag", manifest["name"])))
 		check_objects(
 			objects = {"role '%s'" % role.name: role},
 			manifests = filter(lambda manifest: manifest["type"] == "role", manifests))
@@ -521,8 +521,8 @@ def main(args = None):
 		for key in opts["TARGETS"]:
 			fckit.trace("at %s" % key)
 			targets[key].build()
-			if key == "check":
-				with open(targets[key].path, "r") as fp:
-					print fckit.magenta(fp.read())
+		if os.path.exists(targets["check"].path):
+			with open(targets["check"].path, "r") as fp:
+				print fckit.magenta(fp.read())
 	except fckit.Error as exc:
 		raise SystemExit(fckit.red(exc))
