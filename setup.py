@@ -4,11 +4,11 @@ import setuptools
 
 setuptools.setup(
 	name = "ansible-universe", # https://www.python.org/dev/peps/pep-0426/#name
-	version = "1.11.2", # https://www.python.org/dev/peps/pep-0440/
+	version = "1.11.3", # https://www.python.org/dev/peps/pep-0440/
 	packages = [
 		"universe",
 	], # https://pythonhosted.org/setuptools/setuptools.html#using-find-packages
-	#description = "",
+	description = "Ansible role build tool",
 	#long_description = "",
 	url = "https://github.com/fclaerho/ansible-universe", # https://docs.python.org/2/distutils/setupscript.html#additional-meta-data
 	author = "florent claerhout",
