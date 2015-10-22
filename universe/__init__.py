@@ -14,7 +14,7 @@ Options:
   -r URL, --repository URL    set HTTP repository
   -v, --verbose               output executed commands
   -h, --help                  display full help text
-  -x GLOBS, --exclude GLOBS   file patterns to exclude [default: .*]
+  -x GLOBS, --exclude GLOBS   comma-separated path patterns to exclude [default: .?*]
   --no-color                  disable colored output
 
 TARGET:
@@ -384,14 +384,13 @@ def check(path, role, warning_flags):
 			objects = objects,
 			manifests = filter(lambda manifest: manifest["type"] == "task", manifests))
 
-def package(path, role):
+def package(path, role, exclude):
 	print "generating", path
-	fckit.check_call(
-		"tar",
-		"-C", role.path,
-		"-zcvf", os.path.abspath(path),
-		"--exclude", os.path.abspath(os.path.dirname(path)),
-		".")
+	argv = ["tar", "-C", role.path, "-vczf", os.path.abspath(path)]
+	for pattern in exclude:
+		argv += ["--exclude", pattern]
+	argv.append(".")
+	fckit.check_call(*argv)
 
 def publish(path, url):
 	fckit.check_call("curl", "-k", "-T", path, url)
@@ -491,7 +490,10 @@ class Targets(object):
 				self.cache[key] = fckit.BuildTarget(
 					path = os.path.join(self.build_path, "%s-%s.tgz" % (self.role.name, self.role.version)),
 					sources = [self["check"]],
-					on_build = lambda tgtpath, srcpaths: package(tgtpath, self.role))
+					on_build = lambda tgtpath, srcpaths: package(
+						path = tgtpath,
+						role = self.role,
+						exclude = self.exclude))
 			elif key == "publish":
 				self.cache[key] = fckit.BuildTarget(
 					path = "publish",
