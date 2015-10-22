@@ -384,12 +384,29 @@ def check(path, role, warning_flags):
 			objects = objects,
 			manifests = filter(lambda manifest: manifest["type"] == "task", manifests))
 
+def get_source_paths(role, exclude):
+	paths = []
+	for root, dirnames, filenames in os.walk(role.path):
+		excluded = tuple(
+			dirname
+			for dirname in dirnames
+			for pattern in exclude
+			if fnmatch.fnmatch(dirname, pattern))
+		for dirname in excluded:
+			dirnames.remove(dirname)
+		for filename in filenames:
+			if not any(fnmatch.fnmatch(filename, pattern) for pattern in exclude):
+				path = os.path.join(root, filename)
+				fckit.trace("indexing", path)
+				paths.append(path)
+	return paths
+
 def package(path, role, exclude):
 	print "generating", path
-	argv = ["tar", "-C", role.path, "-vczf", os.path.abspath(path)]
-	for pattern in exclude:
-		argv += ["--exclude", pattern]
-	argv.append(".")
+	paths = map(lambda path: path.replace(role.path, "."), get_source_paths(
+		role = role,
+		exclude = exclude))
+	argv = ["tar", "-C", role.path, "-vczf", os.path.abspath(path)] + paths
 	fckit.check_call(*argv)
 
 def publish(path, url):
@@ -403,27 +420,12 @@ def get_dist_sources(role, exclude):
 	"build dist dependency sub-graph"
 	targets = {}
 	# first, create non-buildable targets out of existing files:
-	for root, dirnames, filenames in os.walk(role.path):
-		excluded = tuple(
-			dirname
-			for dirname in dirnames
-			for pattern in exclude
-			if fnmatch.fnmatch(dirname, pattern))
-		for dirname in excluded:
-			dirnames.remove(dirname)
-		if root != role.path:
-			fckit.trace("indexing %s" % root)
-			targets[root] = fckit.BuildTarget(
-				path = root,
-				on_build = None, # cannot build source file
-				on_digest = lambda path: None) # no digest for directories
-		for filename in filenames:
-			if not any(fnmatch.fnmatch(filename, pattern) for pattern in exclude):
-				path = os.path.join(root, filename)
-				fckit.trace("indexing %s" % path)
-				targets[path] = fckit.BuildTarget(
-					path = path,
-					on_build = None) # cannot build source file
+	for path in get_source_paths(
+		role = role,
+		exclude = exclude):
+		targets[path] = fckit.BuildTarget(
+			path = path,
+			on_build = None) # cannot build source file
 	# second, update targets of files to generate:
 	def is_in_defaults_path(key):
 		return targets[key].path.startswith(os.path.dirname(role.defaults_path))
