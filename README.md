@@ -36,7 +36,9 @@ Example:
 Tutorial
 --------
 
-The first step is to initialize a new role, let's name it `nginx`.
+For this tutorial, we consider a simple use case managing an `nginx` service.
+
+The first step is to initialize the role, let's name it `nginx`.
 
 	$ mkdir nginx
 	$ ansible-universe -C nginx init
@@ -44,7 +46,6 @@ The first step is to initialize a new role, let's name it `nginx`.
 The `init` steps creates a dummy role which is also the build manifest: `meta/main.yml`
 
 You are then free to fill-in the other directories depending on your role.
-For this tutorial, we consider a simple use case in which the role installs and start an `nginx` service.
 The tasks would look like this:
 
 	$ cat > tasks/nginx.yml <<EOF
@@ -60,7 +61,7 @@ The tasks would look like this:
 	      enabled: yes
 	EOF
 
-Let's call ̀`ansible-universe` to generate and check everything:
+Let's call **Ansible-universe** to generate and check everything:
 
 	$ ansible-universe -C nginx check
 
