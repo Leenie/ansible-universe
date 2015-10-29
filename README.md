@@ -54,7 +54,7 @@ This is actually the only required file for distributing a role.
 
 You are then free to fill-in the other directories depending on your role.
 Remember only 8 sub-directories are specified,
-for further details, please check the Directory Layout section of the best practices.
+for further details, please check the Directory Layout section of the best practices, in the appendix.
 
 As for this tutorial, we only need the `tasks` sub-directory.
 This directory would contain a single file for now, named `nginx.yml`:
