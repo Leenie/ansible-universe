@@ -76,7 +76,7 @@ This directory contains a single file for now, named `nginx.yml`:
 	-
 	EOF
 
-Let's call **Ansible-universe** to generate and check everything (`-v` means verbose):
+Let's call **Ansible-universe** to generate and check everything:
 
 	$ ansible-universe -C nginx check -v
 	generating nginx/tasks/main.yml
