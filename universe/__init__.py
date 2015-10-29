@@ -373,7 +373,7 @@ def check(path, role, warning_flags):
 				if not manifest["predicate"](objects[key], helpers):
 					msg = manifest["message"].encode("utf-8")
 					warnings.append(
-						"** warning: %s\n   source: %s\n   flag: %s\n"
+						"** WARNING: %s\n   source: %s\n   flag: %s"
 						% (msg, key, manifest.get("flag", manifest["name"])))
 	# check role:
 	check_objects(

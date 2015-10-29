@@ -85,11 +85,10 @@ Let's call **Ansible-universe** to generate and check everything:
 	playbook: playbook.yml
 
 	ERROR: expecting dict; got: None, error in /tmp/nginx/tasks/nginx.yml
-	** warning: syntax error
+	** WARNING: syntax error
 	   source: role 'nginx'
 	   flag: syntax
-
-	** warning: missing 'name' attribute, please describe the target state
+	** WARNING: missing 'name' attribute, please describe the target state
 	   source: task 'nginx.yml[#2]'
 	   flag: task_has_name
 
