@@ -46,7 +46,8 @@ The first step is to initialize the role, let's name it `nginx`.
 	$ ansible-universe -C nginx init
 
 The `init` steps creates a dummy role manifest: `meta/main.yml`
-This is actually the only required file.
+The role manifest is also the build manifest used by **Ansible-universe**.
+This is actually the only required file for distributing a role.
 
 You are then free to fill-in the other directories depending on your role.
 Remember only 8 sub-directories are specified,
