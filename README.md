@@ -58,20 +58,55 @@ This directory would contain a single file for now, named `nginx.yml`:
 
 	$ cat > tasks/nginx.yml <<EOF
 	---
-	- hosts: all
-	  tasks:
-	  - apt:
-	      name: nginx
-	      state: present
-	  - service:
-	      name: nginx
-	      state: started
-	      enabled: yes
+	- apt:
+	    name: nginx
+	    state: present
+	- service:
+	    name: nginx
+	    state: started
+	    enabled: yes
 	EOF
 
 Let's call **Ansible-universe** to generate and check everything:
 
-	$ ansible-universe -C nginx check
+	$ ansible-universe -C nginx check -v
+	+ at clean
+	+ removing 'nginx/.build'
+	+ removing 'nginx/.README.md.hmap'
+	+ removing 'nginx/README.md'
+	+ at check
+	+ indexing nginx/meta/main.yml
+	+ indexing nginx/tasks/nginx.yml
+	+ assuming target 'nginx/tasks/nginx.yml' is up to date
+	+ assuming target 'nginx/meta/main.yml' is up to date
+	+ updating target 'nginx/tasks/main.yml'
+	generating nginx/tasks/main.yml
+	+ including nginx.yml
+	+ assuming target 'nginx/tasks/nginx.yml' is up to date
+	+ assuming target 'nginx/meta/main.yml' is up to date
+	+ updating target 'nginx/README.md'
+	generating nginx/README.md
+	+ assuming target 'nginx/meta/main.yml' is up to date
+	+ updating target 'nginx/.build/dist'
+	+ makedirs nginx/.build
+	+ updating target 'nginx/.build/warnings.txt'
+	+ mktmpdir
+	+ chdir /tmp/tmpydWchu
+	+ ansible-playbook playbook.yml --syntax-check
+
+	playbook: playbook.yml
+
+	+ chdir /tmp
+	+ removing '/tmp/tmpydWchu'
+	** warning: missing 'name' attribute, please describe the target state
+	   source: task 'nginx.yml[#2]'
+	   flag: task_has_name
+	** warning: missing 'name' attribute, please describe the target state
+	   source: task 'nginx.yml[#1]'
+	   flag: task_has_name
+
+
+The flag `-v` switches to verbose mode.
 
 As indicated in the `lifecycle` section, the `check` target implies `dist`, which is called first.
 
