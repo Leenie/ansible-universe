@@ -145,7 +145,7 @@ If you're using a web repository, proceed as follow (set a working repository UR
 	./meta/main.yml
 	./tasks/main.yml
 	./tasks/nginx.yml
-	publishing to http://somewhere
+	publishing nginx/.build/nginx-0.0.1.tgz to http://somewhere
 
 
 Installation

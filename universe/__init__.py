@@ -423,7 +423,7 @@ def package(path, role, exclude):
 	fckit.check_call(*argv)
 
 def publish(path, url):
-	print "publishing to", url
+	print "publishing", path, "to", url
 	fckit.check_call("curl", "-k", "-T", path, url)
 
 #################
