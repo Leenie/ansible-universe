@@ -137,9 +137,16 @@ Re-run **Ansible-universe**, you should get the following layout with no warning
 Your role is now ready to be distributed.
 If you're using a VCS as repository, simply commit and push the files,
 but remember to exclude the build byproducts (`*.hmap`, `.build`.)
-If you're using a web repository, proceed as follow:
+If you're using a web repository, proceed as follow (set a working repository URL beforehand):
 
-	$ ansible-universe -C nginx publish -r http://my.repository.something
+	$ ansible-universe -C nginx publish -r http://somewhere
+	generating nginx/.build/nginx-0.0.1.tgz
+	./README.md
+	./meta/main.yml
+	./tasks/main.yml
+	./tasks/nginx.yml
+	publishing to http://somewhere
+
 
 Installation
 ------------

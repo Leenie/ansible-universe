@@ -11,7 +11,7 @@ Usage:
 Options:
   -W FLAGS, --warnings FLAGS  comma-separated list of flags to enable [default: all]
   -C PATH, --directory PATH   set working directory [default: .]
-  -r URL, --repository URL    set HTTP repository
+  -r URL, --repository URL    set HTTP repository [default: http://localhost]
   -v, --verbose               output executed commands
   -h, --help                  display full help text
   -x GLOBS, --exclude GLOBS   comma-separated path patterns to exclude [default: .?*]
@@ -416,13 +416,14 @@ def get_source_paths(role, exclude):
 
 def package(path, role, exclude):
 	print "generating", path
-	paths = map(lambda path: path.replace(role.path, "."), get_source_paths(
+	paths = map(lambda path: path.replace(role.path, ".", 1), get_source_paths(
 		role = role,
 		exclude = exclude))
 	argv = ["tar", "-C", role.path, "-vczf", os.path.abspath(path)] + paths
 	fckit.check_call(*argv)
 
 def publish(path, url):
+	print "publishing to", url
 	fckit.check_call("curl", "-k", "-T", path, url)
 
 #################
