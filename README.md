@@ -115,7 +115,7 @@ On `dist`, two files are generated:
     Conditions to inclusions can be specified via the `include_when` attribute of the manifest.
   * `README.md`, gathering the role description, supported platforms and data on variables.
 
-In the above example, 2 warnings were raised.
+On `check`, all checks are run, and in the above example, 2 warnings were raised.
 A syntax error was detected, let's fix it by removing the last dash in `tasks/nginx.yml`.
 The other warning says that we didn't describe one of our tasks, add a name attribute to fix it.
 Re-run **Ansible-universe**, you should get the following layout:
