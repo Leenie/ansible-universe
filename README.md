@@ -57,7 +57,7 @@ Remember only 8 sub-directories are specified,
 for further details, please check the Directory Layout section of the best practices, in the appendix.
 
 As for this tutorial, we only need the `tasks/` sub-directory.
-This directory would contain a single file for now, named `nginx.yml`:
+This directory contains a single file for now, named `nginx.yml`:
 
 	$ cat > tasks/nginx.yml <<EOF
 	---
