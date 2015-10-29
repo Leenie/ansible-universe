@@ -65,6 +65,7 @@ This directory would contain a single file for now, named `nginx.yml`:
 	    name: nginx
 	    state: started
 	    enabled: yes
+	-
 	EOF
 
 Let's call **Ansible-universe** to generate and check everything (`-v` means verbose):
@@ -87,18 +88,21 @@ Let's call **Ansible-universe** to generate and check everything (`-v` means ver
 	+ makedirs nginx/.build
 	+ updating target 'nginx/.build/warnings.txt'
 	+ mktmpdir
-	+ chdir /tmp/tmpydWchu
+	+ chdir /tmp/tmpAIBv6G
 	+ ansible-playbook playbook.yml --syntax-check
 
 	playbook: playbook.yml
 
+	ERROR: expecting dict; got: None, error in /tmp/nginx/tasks/nginx.yml
 	+ chdir /tmp
-	+ removing '/tmp/tmpydWchu'
+	+ removing '/tmp/tmpAIBv6G'
+	+ invalid task found at nginx/tasks/nginx.yml:2, ignored
+	** warning: syntax error
+	   source: role 'nginx'
+	   flag: syntax
+
 	** warning: missing 'name' attribute, please describe the target state
 	   source: task 'nginx.yml[#2]'
-	   flag: task_has_name
-	** warning: missing 'name' attribute, please describe the target state
-	   source: task 'nginx.yml[#1]'
 	   flag: task_has_name
 
 As indicated in the `lifecycle` section, the `check` target implies `dist`, which is called first.
@@ -107,6 +111,11 @@ On `dist`, two files are generated:
   * `tasks/main.yml`, performing the platform check and including any other YAML file in `tasks/`.
     Conditions to inclusions can be specified via the `include_when` attribute of the manifest.
   * `README.md`, gathering the role description, supported platforms and data on variables.
+
+In the above example, 2 warnings were raised.
+A syntax error was detected, let's fix it by removing the last dash in `tasks/nginx.yml`.
+The other warning says that we didn't describe one of our tasks, add a name attribute to fix it.
+Re-run **Ansible-universe**.
 
 
 Installation

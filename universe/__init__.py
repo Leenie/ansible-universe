@@ -316,6 +316,7 @@ def generate_maintask(role):
 	else:
 		# new mode: generate main task file
 		for path in glob.glob(os.path.join(os.path.dirname(role.tasks_path), "*.yml")):
+			if path == role.tasks_path: continue # skip tasks/main.yml if present
 			name = os.path.basename(path)
 			fckit.trace("including", name)
 			tasks.append({
@@ -341,6 +342,22 @@ def clean(role, build_path):
 			if fnmatch.fnmatch(filename, ".*.hmap") or path in generated:
 				fckit.remove(path)
 
+def get_tasks(role):
+	objects = {}
+	for root, _, filenames in os.walk(os.path.dirname(role.tasks_path)):
+		for filename in filenames:
+			_, extname = os.path.splitext(filename)
+			if extname == ".yml":
+				path = os.path.join(root, filename)
+				tasks = unmarshall(path, default = []) or []
+				for idx, task in enumerate(tasks):
+					try:
+						name = "%s[%s]" % (filename, task.get("name", "#%i" % (idx + 1)))
+						objects["task '%s'" % name] = task
+					except:
+						fckit.trace("invalid task found at %s:%i, ignored" % (path, idx))
+	return objects
+
 def check(path, role, warning_flags):
 	manifests = [
 		manifest for manifest in MANIFESTS
@@ -349,40 +366,36 @@ def check(path, role, warning_flags):
 		"marshall": marshall,
 		"role": role,
 	}
+	warnings = []
+	def check_objects(objects, manifests):
+		for key in objects:
+			for manifest in manifests:
+				if not manifest["predicate"](objects[key], helpers):
+					msg = manifest["message"].encode("utf-8")
+					warnings.append(
+						"** warning: %s\n   source: %s\n   flag: %s\n"
+						% (msg, key, manifest.get("flag", manifest["name"])))
+	# check role:
+	check_objects(
+		objects = {"role '%s'" % role.name: role},
+		manifests = filter(lambda manifest: manifest["type"] == "role", manifests))
+	# check variables:
+	check_objects(
+		objects = {"variable '%s'" % key: key for key in role.variables},
+		manifests = filter(lambda manifest: manifest["type"] == "variable", manifests))
+	# check subdirectories:
+	check_objects(
+		objects = {
+			"subdir '%s'" % basename: basename
+			for basename in os.listdir(role.path)
+			if not basename.startswith(".") and os.path.isdir(os.path.join(role.path, basename))},
+		manifests = filter(lambda manifest: manifest["type"] == "subdir", manifests))
+	# check tasks:
+	check_objects(
+		objects = get_tasks(role),
+		manifests = filter(lambda manifest: manifest["type"] == "task", manifests))
 	with open(path, "w") as fp:
-		def check_objects(objects, manifests):
-			for key in objects:
-				for manifest in manifests:
-					if not manifest["predicate"](objects[key], helpers):
-						msg = manifest["message"].encode("utf-8")
-						fp.write(
-							"** warning: %s\n   source: %s\n   flag: %s\n"
-							% (msg, key, manifest.get("flag", manifest["name"])))
-		check_objects(
-			objects = {"role '%s'" % role.name: role},
-			manifests = filter(lambda manifest: manifest["type"] == "role", manifests))
-		check_objects(
-			objects = {"variable '%s'" % key: key for key in role.variables},
-			manifests = filter(lambda manifest: manifest["type"] == "variable", manifests))
-		check_objects(
-			objects = {
-				"subdir '%s'" % basename: basename
-				for basename in os.listdir(role.path)
-				if not basename.startswith(".") and os.path.isdir(os.path.join(role.path, basename))},
-			manifests = filter(lambda manifest: manifest["type"] == "subdir", manifests))
-		objects = {}
-		for root, _, filenames in os.walk(os.path.dirname(role.tasks_path)):
-			for filename in filenames:
-				_, extname = os.path.splitext(filename)
-				if extname == ".yml":
-					path = os.path.join(root, filename)
-					tasks = unmarshall(path, default = []) or []
-					for idx, task in enumerate(tasks):
-						name = "%s[%s]" % (filename, task.get("name", "#%i" % (idx + 1)))
-						objects["task '%s'" % name] = task
-		check_objects(
-			objects = objects,
-			manifests = filter(lambda manifest: manifest["type"] == "task", manifests))
+		fp.write("\n".join(warnings))
 
 def get_source_paths(role, exclude):
 	paths = []
