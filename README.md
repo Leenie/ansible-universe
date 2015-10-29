@@ -118,7 +118,16 @@ On `dist`, two files are generated:
 In the above example, 2 warnings were raised.
 A syntax error was detected, let's fix it by removing the last dash in `tasks/nginx.yml`.
 The other warning says that we didn't describe one of our tasks, add a name attribute to fix it.
-Re-run **Ansible-universe**.
+Re-run **Ansible-universe**, you should get the following layout:
+
+	$ tree nginx/
+	nginx/
+	├── meta
+	│   └── main.yml
+	├── README.md
+	└── tasks
+	    ├── main.yml
+	    └── nginx.yml
 
 
 Installation
