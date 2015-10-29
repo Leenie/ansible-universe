@@ -51,6 +51,11 @@ Let's initialize the role with **Ansible-universe**:
 The `init` target creates a dummy (ansible-galaxy) role manifest: `meta/main.yml`.
 This manifest is also the build manifest for **Ansible-universe**.
 This is actually the only required file for distributing a role.
+Take some time to edit this file:
+  * set the author (you)
+  * set a description
+  * select supported platforms (Debian and Ubuntu in our case)
+  * etc.
 
 You are then free to fill-in the other directories depending on your role.
 Remember only 8 sub-directories are specified,
@@ -118,7 +123,7 @@ On `dist`, two files are generated:
 On `check`, all checks are run, and in the above example, 2 warnings were raised.
 A syntax error was detected, let's fix it by removing the last dash in `tasks/nginx.yml`.
 The other warning says that we didn't describe one of our tasks, add a name attribute to fix it.
-Re-run **Ansible-universe**, you should get the following layout:
+Re-run **Ansible-universe**, you should get the following layout with no warning:
 
 	$ tree nginx/
 	nginx/
@@ -129,6 +134,7 @@ Re-run **Ansible-universe**, you should get the following layout:
 	    ├── main.yml
 	    └── nginx.yml
 
+Your role is now ready to be distributed.
 
 Installation
 ------------
