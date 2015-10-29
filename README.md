@@ -70,10 +70,6 @@ This directory would contain a single file for now, named `nginx.yml`:
 Let's call **Ansible-universe** to generate and check everything (`-v` means verbose):
 
 	$ ansible-universe -C nginx check -v
-	+ at clean
-	+ removing 'nginx/.build'
-	+ removing 'nginx/.README.md.hmap'
-	+ removing 'nginx/README.md'
 	+ at check
 	+ indexing nginx/meta/main.yml
 	+ indexing nginx/tasks/nginx.yml
