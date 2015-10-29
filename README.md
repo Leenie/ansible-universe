@@ -67,7 +67,7 @@ This directory would contain a single file for now, named `nginx.yml`:
 	    enabled: yes
 	EOF
 
-Let's call **Ansible-universe** to generate and check everything:
+Let's call **Ansible-universe** to generate and check everything (`-v` means verbose):
 
 	$ ansible-universe -C nginx check -v
 	+ at clean
@@ -104,9 +104,6 @@ Let's call **Ansible-universe** to generate and check everything:
 	** warning: missing 'name' attribute, please describe the target state
 	   source: task 'nginx.yml[#1]'
 	   flag: task_has_name
-
-
-The flag `-v` switches to verbose mode.
 
 As indicated in the `lifecycle` section, the `check` target implies `dist`, which is called first.
 
