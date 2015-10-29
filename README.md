@@ -25,7 +25,7 @@ The following [lifecycles][7] are supported:
   * `prefix`, variable prefix, defaults to rolename
   * `version`, defaults to 0.0.1
   * `variables`, maps names to descriptions
-  * `include_when`, maps tasks filename to include conditions
+  * `include_when`, maps `tasks/` filenames to include conditions
 
 Example:
 
