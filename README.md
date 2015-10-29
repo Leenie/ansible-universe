@@ -27,7 +27,9 @@ The following [lifecycles][7] are supported:
   * `variables`, maps names to descriptions
   * `include_when`, maps `tasks/` filenames to include conditions
 
-Example:
+
+Example
+-------
 
 	$ mkdir foo
 	$ ansible-universe -C foo init check
@@ -43,9 +45,14 @@ The first step is to initialize the role, let's name it `nginx`.
 	$ mkdir nginx
 	$ ansible-universe -C nginx init
 
-The `init` steps creates a dummy role which is also the build manifest: `meta/main.yml`
+The `init` steps creates a dummy role manifest: `meta/main.yml`
+This is actually the only required file.
 
 You are then free to fill-in the other directories depending on your role.
+Remember only 8 sub-directories are specified,
+for further details, please check the Directory Layout section of the best practices.
+
+As for this tutorial, we only need the `tasks` sub-directory.
 The tasks would look like this:
 
 	$ cat > tasks/nginx.yml <<EOF
@@ -65,7 +72,7 @@ Let's call **Ansible-universe** to generate and check everything:
 
 	$ ansible-universe -C nginx check
 
-As indicated in the `lifecycle` section, the `check` target implies `dist`, so dist is called first.
+As indicated in the `lifecycle` section, the `check` target implies `dist`, which is called first.
 
 On `dist`, two files are generated:
   * `tasks/main.yml`, performing the platform check and including any other YAML file in `tasks/`.
