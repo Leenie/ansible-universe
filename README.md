@@ -38,12 +38,15 @@ Example
 Tutorial
 --------
 
-For this tutorial, we consider a simple use case managing an `nginx` service.
+For this tutorial, we consider a simple use case: a role managing an `nginx` service.
 
-The first step is to initialize the role, let's name it `nginx`.
+A role is a directory containing various assets, the first step is therefore to create that directory:
 
-	$ mkdir nginx
-	$ ansible-universe -C nginx init
+	tmp/$ mkdir nginx
+
+Let's initialize the role with **Ansible-universe**:
+
+	tmp/$ ansible-universe -C nginx init
 
 The `init` steps creates a dummy role manifest: `meta/main.yml`
 The role manifest is also the build manifest used by **Ansible-universe**.
@@ -56,7 +59,7 @@ for further details, please check the Directory Layout section of the best pract
 As for this tutorial, we only need the `tasks` sub-directory.
 This directory would contain a single file for now, named `nginx.yml`:
 
-	$ cat > tasks/nginx.yml <<EOF
+	tmp/$ cat > tasks/nginx.yml <<EOF
 	---
 	- apt:
 	    name: nginx
@@ -70,7 +73,7 @@ This directory would contain a single file for now, named `nginx.yml`:
 
 Let's call **Ansible-universe** to generate and check everything (`-v` means verbose):
 
-	$ ansible-universe -C nginx check -v
+	tmp/$ ansible-universe -C nginx check -v
 	+ at check
 	+ indexing nginx/meta/main.yml
 	+ indexing nginx/tasks/nginx.yml
