@@ -2,9 +2,9 @@
 **Ansible-universe** is an [Ansible role](http://docs.ansible.com/ansible/playbooks_roles.html) build tool implementing the following features:
   * Role syntax check
   * Proper `README.md` generation
-  * Platform runtime check generation
   * Role [linter][9] implementing best practices
   * Packaging & publishing into private web (DAV) repositories
+  * `tasks/main.yml` generation, with a proper platform runtime check
 
 The following [build targets][7] are supported:
   * `init`     instantiate role template
@@ -21,6 +21,12 @@ The following [lifecycles][7] are supported:
   * **`clean`**
   * **`publish`** < `package` < `check` < `dist`
 
+**Ansible-universe** uses the ansible-galaxy [build manifest][7] (`meta/main.yml`) with extra attributes:
+  * `prefix`, variable prefix, defaults to rolename
+  * `version`, defaults to 0.0.1
+  * `variables`, maps names to descriptions
+  * `include_when`, maps tasks filename to include conditions
+
 Example:
 
 	$ mkdir foo
@@ -30,18 +36,35 @@ Example:
 Tutorial
 --------
 
-The first step is to initialize a new role, let's name it `foo`.
+The first step is to initialize a new role, let's name it `nginx`.
 
-	$ mkdir foo
-	$ ansible-universe -C foo init
+	$ mkdir nginx
+	$ ansible-universe -C nginx init
 
-The `init` steps creates a dummy role which is also the build manifest.
+The `init` steps creates a dummy role which is also the build manifest: `meta/main.yml`
 
-**Ansible-universe** uses the ansible-galaxy [build manifest][7] (`meta/main.yml`) with extra attributes:
-  * `prefix`, variable prefix, defaults to rolename
-  * `version`, defaults to 0.0.1
-  * `variables`, maps names to descriptions
-  * `include_when`, maps tasks filename to include conditions
+You are then free to fill-in the other directories depending on your role.
+For this tutorial, we consider a simple use case in which the role installs and start an `nginx` service.
+The tasks would look like this:
+
+	$ cat > tasks/nginx.yml <<EOF
+	---
+	- hosts: all
+	  tasks:
+	  - apt:
+	      name: nginx
+	      state: present
+	  - service:
+	      name: nginx
+	      state: started
+	      enabled: yes
+	EOF
+
+Let's call ̀`ansible-universe` to generate and check everything:
+
+	$ ansible-universe -C nginx check
+
+As indicated in the `lifecycle` section, the `check` target implies `dist`, so dist is called first.
 
 On `dist`, two files are generated:
   * `tasks/main.yml`, performing the platform check and including any other YAML file in `tasks/`.
