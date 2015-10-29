@@ -4,7 +4,7 @@
   * Proper `README.md` generation
   * Role [linter][9] implementing best practices
   * Packaging & publishing into private web (DAV) repositories
-  * `tasks/main.yml` generation, with a proper platform runtime check
+  * Proper `tasks/main.yml` generation, with platforms runtime check
 
 The following [build targets][7] are supported:
   * `init`     instantiate role template
