@@ -26,6 +26,17 @@ Example:
 	$ mkdir foo
 	$ ansible-universe -C foo init check
 
+
+Tutorial
+--------
+
+The first step is to initialize a new role, let's name it `foo`.
+
+	$ mkdir foo
+	$ ansible-universe -C foo init
+
+The `init` steps creates a dummy role which is also the build manifest.
+
 **Ansible-universe** uses the ansible-galaxy [build manifest][7] (`meta/main.yml`) with extra attributes:
   * `prefix`, variable prefix, defaults to rolename
   * `version`, defaults to 0.0.1
