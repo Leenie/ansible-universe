@@ -79,32 +79,12 @@ This directory contains a single file for now, named `nginx.yml`:
 Let's call **Ansible-universe** to generate and check everything (`-v` means verbose):
 
 	$ ansible-universe -C nginx check -v
-	+ at check
-	+ indexing nginx/meta/main.yml
-	+ indexing nginx/tasks/nginx.yml
-	+ assuming target 'nginx/tasks/nginx.yml' is up to date
-	+ assuming target 'nginx/meta/main.yml' is up to date
-	+ updating target 'nginx/tasks/main.yml'
 	generating nginx/tasks/main.yml
-	+ including nginx.yml
-	+ assuming target 'nginx/tasks/nginx.yml' is up to date
-	+ assuming target 'nginx/meta/main.yml' is up to date
-	+ updating target 'nginx/README.md'
 	generating nginx/README.md
-	+ assuming target 'nginx/meta/main.yml' is up to date
-	+ updating target 'nginx/.build/dist'
-	+ makedirs nginx/.build
-	+ updating target 'nginx/.build/warnings.txt'
-	+ mktmpdir
-	+ chdir /tmp/tmpAIBv6G
-	+ ansible-playbook playbook.yml --syntax-check
 
 	playbook: playbook.yml
 
 	ERROR: expecting dict; got: None, error in /tmp/nginx/tasks/nginx.yml
-	+ chdir /tmp
-	+ removing '/tmp/tmpAIBv6G'
-	+ invalid task found at nginx/tasks/nginx.yml:2, ignored
 	** warning: syntax error
 	   source: role 'nginx'
 	   flag: syntax
