@@ -1,5 +1,5 @@
 
-**Ansible-universe** is an [Ansible role][0] [build tool][10] implementing the following features:
+**Ansible-universe** is an [Ansible role][0] [build tool][7] implementing the following features:
   * Role syntax check
   * Proper `README.md` generation
   * Role [linter][9] implementing best practices
@@ -304,4 +304,3 @@ This violates the idempotence rule.
 [7]: https://github.com/fclaerho/buildstack#glossary
 [8]: https://galaxy.ansible.com/intro#share
 [9]: https://en.wikipedia.org/wiki/Lint_(software)
-[10]: https://en.wikipedia.org/wiki/Build_automation
