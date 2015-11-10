@@ -349,13 +349,13 @@ def get_tasks(role):
 			_, extname = os.path.splitext(filename)
 			if extname == ".yml":
 				path = os.path.join(root, filename)
-				tasks = unmarshall(path, default = []) or []
-				for idx, task in enumerate(tasks):
-					try:
+				try:
+					tasks = unmarshall(path, default = []) or []
+					for idx, task in enumerate(tasks):
 						name = "%s[%s]" % (filename, task.get("name", "#%i" % (idx + 1)))
 						objects["task '%s'" % name] = task
-					except:
-						fckit.trace("invalid task found at %s:%i, ignored" % (path, idx))
+				except:
+					fckit.trace("invalid task file %s, ignored" % path)
 	return objects
 
 def check(path, role, warning_flags):
