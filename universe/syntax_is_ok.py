@@ -40,7 +40,6 @@ def check_syntax(role, helpers):
 		fckit.check_call("ansible-playbook", "playbook.yml", "--syntax-check")
 		return True
 	except:
-		raise
 		return False
 	finally:
 		fckit.chdir(cwd)

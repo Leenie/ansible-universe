@@ -1,10 +1,10 @@
 
-**Ansible-universe** is an [Ansible role](http://docs.ansible.com/ansible/playbooks_roles.html) build tool implementing the following features:
+**Ansible-universe** is an [Ansible role][0] [build tool][7] implementing the following features:
   * Role syntax check
   * Proper `README.md` generation
-  * Platform runtime check generation
   * Role [linter][9] implementing best practices
   * Packaging & publishing into private web (DAV) repositories
+  * Proper `tasks/main.yml` generation, with platforms runtime check
 
 The following [build targets][7] are supported:
   * `init`     instantiate role template
@@ -21,21 +21,110 @@ The following [lifecycles][7] are supported:
   * **`clean`**
   * **`publish`** < `package` < `check` < `dist`
 
-Example:
-
-	$ mkdir foo
-	$ ansible-universe -C foo init check
-
 **Ansible-universe** uses the ansible-galaxy [build manifest][7] (`meta/main.yml`) with extra attributes:
   * `prefix`, variable prefix, defaults to rolename
   * `version`, defaults to 0.0.1
   * `variables`, maps names to descriptions
-  * `include_when`, maps tasks filename to include conditions
+  * `include_when`, maps `tasks/` filenames to include conditions
+
+
+Example
+-------
+
+	$ mkdir foo
+	$ ansible-universe -C foo init check
+
+
+Tutorial
+--------
+
+For this tutorial, we consider a simple use case: a role managing an `nginx` service.
+
+A role is a directory containing various assets, the first step is therefore to create that directory:
+
+	$ mkdir nginx
+
+Let's initialize the role with **Ansible-universe**:
+
+	$ ansible-universe -C nginx init
+
+The `init` target creates a dummy (ansible-galaxy) role manifest: `meta/main.yml`.
+This manifest is also the build manifest for **Ansible-universe**.
+This is actually the only required file for distributing a role.
+Take some time to edit this file:
+  * set the author (you)
+  * set a description
+  * select supported platforms (Debian and Ubuntu in our case)
+  * etc.
+
+You are then free to fill-in the other directories depending on your role.
+Remember only 8 sub-directories are specified,
+for further details, please check the Directory Layout section of the best practices, in the appendix.
+
+As for this tutorial, we only need the `tasks/` sub-directory.
+This directory contains a single file for now, named `nginx.yml`:
+
+	$ cat > tasks/nginx.yml <<EOF
+	---
+	- apt:
+	    name: nginx
+	    state: present
+	- service:
+	    name: nginx
+	    state: started
+	    enabled: yes
+	-
+	EOF
+
+Let's call **Ansible-universe** to generate and check everything:
+
+	$ ansible-universe -C nginx check -v
+	generating nginx/tasks/main.yml
+	generating nginx/README.md
+
+	playbook: playbook.yml
+
+	ERROR: expecting dict; got: None, error in /tmp/nginx/tasks/nginx.yml
+	** WARNING: syntax error
+	   source: role 'nginx'
+	   flag: syntax
+	** WARNING: missing 'name' attribute, please describe the target state
+	   source: task 'nginx.yml[#2]'
+	   flag: task_has_name
+
+As indicated in the `lifecycle` section, the `check` target implies `dist`, which is called first.
 
 On `dist`, two files are generated:
   * `tasks/main.yml`, performing the platform check and including any other YAML file in `tasks/`.
     Conditions to inclusions can be specified via the `include_when` attribute of the manifest.
   * `README.md`, gathering the role description, supported platforms and data on variables.
+
+On `check`, all checks are run, and in the above example, 2 warnings were raised.
+A syntax error was detected, let's fix it by removing the last dash in `tasks/nginx.yml`.
+The other warning says that we didn't describe one of our tasks, add a name attribute to fix it.
+Re-run **Ansible-universe**, you should get the following layout with no warning:
+
+	$ tree nginx/
+	nginx/
+	├── meta
+	│   └── main.yml
+	├── README.md
+	└── tasks
+	    ├── main.yml
+	    └── nginx.yml
+
+Your role is now ready to be distributed.
+If you're using a VCS as repository, simply commit and push the files,
+but remember to exclude the build byproducts (`*.hmap`, `.build`.)
+If you're using a web repository, proceed as follow (set a working repository URL beforehand):
+
+	$ ansible-universe -C nginx publish -r http://somewhere
+	generating nginx/.build/nginx-0.0.1.tgz
+	./README.md
+	./meta/main.yml
+	./tasks/main.yml
+	./tasks/nginx.yml
+	publishing nginx/.build/nginx-0.0.1.tgz to http://somewhere
 
 
 Installation
@@ -205,6 +294,7 @@ This violates the idempotence rule.
 
 <!-- references -->
 
+[0]: http://docs.ansible.com/ansible/playbooks_roles.html
 [1]: http://docs.ansible.com/ansible/playbooks_best_practices.html
 [2]: https://openedx.atlassian.net/wiki/display/OpenOPS/Ansible+Code+Conventions
 [3]: http://shop.oreilly.com/product/0636920035626.do
