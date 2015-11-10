@@ -223,7 +223,7 @@ def init_manifest(path):
 		path = path,
 		obj = {
 			"dependencies": [],
-			"inconditions": {},
+			"include_when": {},
 			"galaxy_info": {
 				"min_ansible_version": "1.8.4",
 				"description": None,
