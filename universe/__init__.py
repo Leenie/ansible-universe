@@ -248,8 +248,7 @@ def generate_readme(role):
 
 		## Supported Platforms
 		{% for ptf in platforms %}
-		  * {{ ptf.name }}
-		{% else %}
+		  * {{ ptf.name }}{% else %}
 		No supported platform specified (yet.)
 		{% endfor %}
 
@@ -257,7 +256,7 @@ def generate_readme(role):
 		{% if variables %}
 		| Name | Value | Description |
 		|------|-------|-------------|
-		{% for key in variables.keys()|sort %}| {{ key }} | {{ variables[key].type if variables[key].type != None else "" }} {{ variables[key].value if variables[key].value != None else "" }} | {{ variables[key].description }} |
+		{% for key in variables.keys()|sort %}| {{ key }} | {{ ("_"+variables[key].type+":_") if variables[key].type != None else "" }} {{ variables[key].value if variables[key].value != None else "" }} | {{ variables[key].description }} |
 		{% endfor %}
 		{% else %}
 		No variable.
