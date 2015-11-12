@@ -572,8 +572,8 @@ def main(args = None):
 		for key in opts["TARGETS"]:
 			fckit.trace("at %s" % key)
 			targets[key].build()
-		#if os.path.exists(targets["check"].path):
-		#	with open(targets["check"].path, "r") as fp:
-		#		print fckit.magenta(fp.read())
+		if os.path.exists(targets["check"].path):
+			with open(targets["check"].path, "r") as fp:
+				print fckit.magenta(fp.read())
 	except fckit.Error as exc:
 		raise SystemExit(fckit.red(exc))

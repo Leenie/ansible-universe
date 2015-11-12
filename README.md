@@ -80,7 +80,7 @@ This directory contains a single file for now, named `nginx.yml`:
 
 Let's call **Ansible-universe** to generate and check everything:
 
-	$ ansible-universe -C nginx check -v
+	$ ansible-universe -C nginx check
 	generating nginx/tasks/main.yml
 	generating nginx/README.md
 
