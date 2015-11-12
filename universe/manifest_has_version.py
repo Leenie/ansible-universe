@@ -4,5 +4,5 @@ MANIFEST = {
 	"flag": "manifest",
 	"type": "role",
 	"message": "missing version attribute, please specify the role version",
-	"predicate": lambda role, helpers: "version" in role.manifest,
+	"predicate": lambda role, helpers: "version" in role.get_manifest(),
 }

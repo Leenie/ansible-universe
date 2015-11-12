@@ -4,5 +4,5 @@ MANIFEST = {
 	"flag": "manifest",
 	"type": "role",
 	"message": "missing license attribute, please specify the role license",
-	"predicate": lambda role, helpers: "license" in role.manifest["galaxy_info"],
+	"predicate": lambda role, helpers: "license" in role.galaxy_info,
 }

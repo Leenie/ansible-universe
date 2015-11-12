@@ -6,9 +6,10 @@ import fckit # 3rd-party
 
 def check_syntax(role, helpers):
 	"generate a playbook using the role and syntax-check it"
-	roles_path = os.path.dirname(os.path.abspath(role.path))
 	tmpdir = fckit.mkdir()
 	cwd = os.getcwd()
+	#print "!! role path=", cwd
+	#print "!! playbook path=", tmpdir
 	fckit.chdir(tmpdir)
 	try:
 		# write playbook:
@@ -29,7 +30,7 @@ def check_syntax(role, helpers):
 		# write configuration:
 		config = {
 			"defaults": {
-				"roles_path": roles_path,
+				"roles_path": os.path.dirname(cwd),
 				"hostfile": "inventory.cfg",
 			}
 		}

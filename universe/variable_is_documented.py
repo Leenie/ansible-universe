@@ -4,5 +4,5 @@ MANIFEST = {
 	"flag": "readme",
 	"type": "variable",
 	"message": "variable not documented",
-	"predicate": lambda variable, helpers: variable in helpers["role"].readme,
+	"predicate": lambda variable, helpers: variable in helpers["role"].get_readme(),
 }

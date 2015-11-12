@@ -26,6 +26,8 @@ The following [lifecycles][7] are supported:
   * `version`, defaults to 0.0.1
   * `variables`, maps names to descriptions
   * `include_when`, maps `tasks/` filenames to include conditions
+  * `usage_complement`, optional, additional usage instructions
+  * `maintenance_complement`, optional, additional maintenance instructions
 
 
 Example
