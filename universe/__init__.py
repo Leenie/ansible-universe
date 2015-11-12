@@ -261,9 +261,7 @@ def generate_readme(role):
 	template = """
 		<!-- THIS IS A GENERATED FILE, DO NOT EDIT -->
 
-		{{ description or "(No description yet.)" }}
-
-		* * *
+		{{ description or "(No description yet.)" }} Version {{ version }}.
 
 
 		## Supported Platforms
@@ -312,6 +310,7 @@ def generate_readme(role):
 		"description": role.description,
 		"platforms": role.platforms,
 		"variables": role.get_variables(),
+		"version": role.version,
 		"name": role.name,
 	})
 	marshall(
