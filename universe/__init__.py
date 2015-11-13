@@ -441,9 +441,9 @@ def get_source_paths(role, exclude):
 
 def package(path, role, exclude):
 	print "generating", path
-	paths = get_source_paths(
+	paths = ["./%s" % srcpath for srcpath in get_source_paths(
 		role = role,
-		exclude = exclude)
+		exclude = exclude)]
 	argv = ["tar", "-vczf", os.path.abspath(path)] + paths
 	fckit.check_call(*argv)
 
