@@ -274,7 +274,7 @@ def generate_readme(role):
 		{% if variables %}
 		| Name | Value | Description |
 		|------|-------|-------------|
-		{% for key in variables.keys()|sort %}| {{ key }} | {{ ("_("+variables[key].type+":)_") if variables[key].type != None else "" }} {{ variables[key].value if variables[key].value != None else "" }} | {{ variables[key].description }} |
+		{% for key in variables.keys()|sort %}| {{ key }} | {{ ("_"+variables[key].type+"_") if variables[key].type != None else "" }} {{ variables[key].value if variables[key].value != None else "" }} | {{ variables[key].description or '' }} |
 		{% endfor %}
 		{% else %}
 		No variable.
