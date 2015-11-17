@@ -157,7 +157,7 @@ Ansible Best Practices
 #### Playbook Interface
 
 Always assume your playbook users are not developers.
-Design your playbooks to be configurable through groups and variables.
+Design your playbooks to be configurable through **groups** and **variables**.
 Users will use those in the inventory and varfiles.
 The inventory and varfiles are expected to be created/edited,
 but making your user modify a playbook is a design mistake.
@@ -173,21 +173,27 @@ but making your user modify a playbook is a design mistake.
 
 If you need additional assets, such as files or templates, then define a role to manage them.
 
+#### Dependencies
+
+Roles specific to your playbook have to be shipped with it.
+3rd-parties dependencies have to be registered into the `requirements.{txt,yml}` file
+and resolved by `ansible-galaxy`.
+
 
 ### ROLES
-
-#### Divide & Conquer
 
 If you need a piece of provisioning more than once, re-design it as a [role][1].
 Roles are to Ansible what packages are to your platform or programming language.
 
-#### Role Interface
+#### Design
+
+##### Role Interface
 
 You can safely assume that role users are actually developers,
 as using them requires some more advanced Ansible skills.
-Design your roles to be configurable through variables.
+Design your roles to be configurable through **variables**.
 
-#### Role Repository
+##### Role Repository
 
 Make your roles available either on a public VCS or on a public web repository.
 Prefer web repository to avoid access control issues.
@@ -215,21 +221,17 @@ This entails major issues:
     A playbook may contain binary resources (e.g. images or pre-compiled bytecode.)
     Storing those resources into a code repository is a bad practice (REF?.)
 
-#### Dependencies
+##### Dependencies
 
-Do not bundle any role with your playbook (or similarly, do not use git submodules):
-use a requirements file and let ansible-galaxy handle its resolution.
-The same principle applies to any build stack: python, java, ruby, etc.
-For instance you do not bundle jar dependencies for a Java project.
-A requirement file can reference a VCS or a web repository indifferently.
+3rd-parties dependencies have to be registered into the `dependencies` attribute of the role manifest.
 
-#### Isolation
+##### Isolation
 
 Keep roles [self-contained][2].
 Having shared variables between two roles is a design mistake.
 Instead make your roles configurable via variables and handle integration issues in the corresponding play.
 
-### FORMAL REQUIREMENTS
+#### Formal Requirements
 
 The following requirements are all validated by default via the `check` target:
 
@@ -238,7 +240,7 @@ The following requirements are all validated by default via the `check` target:
 
 You can switch on only the ones you're interested in with the `-W<flag>,…` option.
 
-#### Manifest, `-Wmanifest`
+##### Manifest, `-Wmanifest`
 
 Make sure your role manifest contains the [required][8] information for publication:
 
@@ -248,21 +250,21 @@ Make sure your role manifest contains the [required][8] information for publicat
   * Description
   * Supported platforms
 
-#### Documentation, `-Wreadme`
+##### Documentation, `-Wreadme`
 
 Given a playbook or a role, if groups or variables are not documented, they are non-existent as,
 unfortunately, Ansible (as of version 1.9.2) has no native mechanism to probe them.
 The documentation (generally the `README.md` file) is therefore the only learning medium for the end-users.
 [Make sure your documentation it is up-to-date][8].
 
-#### Naming, `-Wnaming`
+##### Naming, `-Wnaming`
 
 [Prefix][2] ([bis][3], [rebis][8]) all your playbook groups, playbook variables and role variables by a short and unique ID.
 Ideally the playbook name if it fits.
 Ansible only has a global namespace and having two identical variables will lead one to be overwritten by the other.
 This is also true for handler names.
 
-#### Directory Layout, `-Wlayout`
+##### Directory Layout, `-Wlayout`
 
 Do not add any custom sub-directory to a role or playbook, this would lead to [undefined behavior][6]:
 at any point in a future version, other sub-directories might be needed by Ansible
@@ -278,18 +280,18 @@ As of Ansible version 1.9.2, **8** sub-directories are [specified][1] for a role
   * `vars/`
   * `library/`
 
-#### Name task, `-Wtask_has_name`
+##### Name task, `-Wtask_has_name`
 
 Make the intent of each task explicit by setting its `name` attribute.
 
-#### Do not set a Remote User, `-Wtask_has_no_remote_user`
+##### Do not set a Remote User, `-Wtask_has_no_remote_user`
 
 It's tempting to always assume your playbooks/roles are run as root and to enforce it by setting `remote_user`.
 This is a bad idea as your users might want to use another user that has equivalent privileges (e.g. via sudo.)
 The root account is often disabled on modern systems for security reasons.
 If you need an explicit user for a given task, use `sudo_user: <name>` and `sudo: yes`.
 
-#### On copy/template, Set a owner, `-Wowner`
+##### On copy/template, Set a owner, `-Wowner`
 
 If no owner is specified on a `copy` or a `template` task, the current user UID will be used.
 But that user can change and so will the file owner depending on who is running the playbook.
