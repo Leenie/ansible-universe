@@ -33,7 +33,8 @@ The following [lifecycles][7] are supported:
 Tutorial
 --------
 
-For this tutorial, we consider a simple use case: a role managing an `nginx` service.
+For this tutorial, we're going to work on a simple use-case:
+a provisioner for a `nginx` service.
 
 A role is a directory containing various assets, the first step is therefore to create that directory:
 
@@ -95,6 +96,9 @@ On `dist`, two files are generated:
   * `README.md`, gathering the role description, supported platforms and data on variables.
 
 On `check`, all checks are run, and in the above example, 2 warnings were raised.
+The fact that ERROR is printed and then WARNING is a tad confusing.
+What's happening is that the ansible-playbook subprocess is terminating on an error and print it.
+This is caught by ansible-universe as a more generic warning stating that the syntax is incorrect.
 A syntax error was detected, let's fix it by removing the last dash in `tasks/nginx.yml`.
 The other warning says that we didn't describe one of our tasks, add a name attribute to fix it.
 Re-run **Ansible-universe**, you should get the following layout with no warning:
