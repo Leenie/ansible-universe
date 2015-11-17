@@ -35,6 +35,9 @@ Lifecycles:
 Example:
   $ mkdir foo
   $ ansible-universe -C foo init check
+
+Persistent Configuration:
+  None.
 """
 
 import textwrap, fnmatch, glob, sys, os
@@ -324,7 +327,6 @@ def generate_maintask(role):
 	tasks = []
 	if platforms:
 		tasks.append({
-			"name": "Assert the target platform is supported",
 			"fail": {
 				"msg": "unsupported platform -- please contact the role maintainer for support",
 			},

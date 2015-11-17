@@ -11,7 +11,7 @@ requirements = (
 
 setuptools.setup(
 	name = "ansible-universe", # https://www.python.org/dev/peps/pep-0426/#name
-	version = "1.11.21", # https://www.python.org/dev/peps/pep-0440/
+	version = "1.11.22", # https://www.python.org/dev/peps/pep-0440/
 	packages = [
 		"universe",
 	], # https://pythonhosted.org/setuptools/setuptools.html#using-find-packages
