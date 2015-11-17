@@ -30,13 +30,6 @@ The following [lifecycles][7] are supported:
   * `maintenance_complement`, optional, additional maintenance instructions
 
 
-Example
--------
-
-	$ mkdir foo
-	$ ansible-universe -C foo init check
-
-
 Tutorial
 --------
 
