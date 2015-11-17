@@ -155,22 +155,38 @@ In your module, the `MANIFEST` dictionary shall contains the following attribute
   * Optional `flag`: default to module name, symbol used with the `-W` command line option.
 
 
-Appendix: Ansible Best Practices
---------------------------------
+Ansible Best Practices
+----------------------
 
-### GENERAL DESIGN RULES
 
-#### Divide & Conquer
-
-If you need a piece of provisioning more than once, re-design it as a [role][1].
-Roles are to Ansible what packages are to your platform or programming language.
+### PLAYBOOKS
 
 #### Playbook Interface
 
 Always assume your playbook users are not developers.
 Design your playbooks to be configurable through groups and variables.
 Users will use those in the inventory and varfiles.
-The inventory and varfiles are expected to be created/edited, but making your user modify a playbook is a design mistake.
+The inventory and varfiles are expected to be created/edited,
+but making your user modify a playbook is a design mistake.
+
+#### Directory Layout
+
+**5** sub-directories are [specified][1] for a playbook:
+  * `group_vars/`
+  * `host_vars/`
+  * `library/`
+  * `filter_plugins/`
+  * `roles/`
+
+If you need additional assets, such as files or templates, then define a role to manage them.
+
+
+### ROLES
+
+#### Divide & Conquer
+
+If you need a piece of provisioning more than once, re-design it as a [role][1].
+Roles are to Ansible what packages are to your platform or programming language.
 
 #### Role Interface
 
@@ -268,13 +284,6 @@ As of Ansible version 1.9.2, **8** sub-directories are [specified][1] for a role
   * `templates/`
   * `vars/`
   * `library/`
-
-And **5** sub-directories are [specified][1] for a playbook:
-  * `group_vars/`
-  * `host_vars/`
-  * `library/`
-  * `filter_plugins/`
-  * `roles/`
 
 #### Name task, `-Wtask_has_name`
 
