@@ -97,8 +97,8 @@ On `dist`, two files are generated:
 
 On `check`, all checks are run, and in the above example, 2 warnings were raised.
 The fact that ERROR is printed and then WARNING is a tad confusing.
-What's happening is that the ansible-playbook subprocess is terminating on an error and print it.
-This is caught by ansible-universe as a more generic warning stating that the syntax is incorrect.
+What's happening is that the `ansible-playbook` subprocess is terminating on an error and print it.
+This is caught by **Ansible-universe** as a more generic warning stating that the syntax is incorrect.
 A syntax error was detected, let's fix it by removing the last dash in `tasks/nginx.yml`.
 The other warning says that we didn't describe one of our tasks, add a name attribute to fix it.
 Re-run **Ansible-universe**, you should get the following layout with no warning:
@@ -114,7 +114,7 @@ Re-run **Ansible-universe**, you should get the following layout with no warning
 
 Your role is now ready to be distributed.
 If you're using a VCS as repository, simply commit and push the files,
-but remember to exclude the build byproducts (`*.hmap`, `.build`.)
+but remember to exclude (e.g. in `.gitignore`) the build byproducts (`*.hmap`, `.build`.)
 If you're using a web repository, proceed as follow (set a working repository URL beforehand):
 
 	$ ansible-universe -C nginx publish -r http://somewhere
