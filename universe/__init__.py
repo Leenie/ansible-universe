@@ -21,7 +21,7 @@ TARGET:
   * show     show role metadata
   * init     instantiate role template
   * dist     generate ansible distributable role files
-  * clean    delete non-distributable role files
+  * clean    delete generated files
   * check    include role in a dummy playbook and check syntax
   * package  package role
   * publish  publish role to a web repository
@@ -301,8 +301,9 @@ def generate_readme(role):
 		and run `ansible-universe check` to re-generate this distribution.
 
 		The following files are generated or updated based on various role assets:
-		  * tasks/main.yml
-		  * README.md
+
+		  * `tasks/main.yml`
+		  * `README.md`
 
 		{{ maintenance_complement or ""}}
 
